@@ -1,0 +1,108 @@
+"use client"
+
+import { useState } from "react"
+import Link from "next/link"
+import Image from "next/image"
+import { Menu, X, Youtube, Facebook, Instagram } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+
+const navItems = [
+  { label: "Home", href: "/" },
+  { label: "About", href: "/about" },
+  { label: "Services", href: "/services" },
+  { label: "Ministries", href: "/ministries" },
+  { label: "Events", href: "/events" },
+  { label: "Calendar", href: "/calendar" },
+  { label: "Rock of Redeemer", href: "#" },
+  { label: "Contact", href: "/contact" },
+]
+
+export function Header() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20">
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/logo.png"
+              alt="Redeemer MTC - Lighted to Lighten"
+              width={200}
+              height={60}
+              className="h-12 w-auto"
+              priority
+            />
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-8">
+            {navItems.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="text-sm font-medium text-foreground hover:text-accent transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Social Icons */}
+          <div className="hidden lg:flex items-center gap-4">
+            <a href="https://www.youtube.com/@redeemermtc" className="text-muted-foreground hover:text-accent transition-colors" aria-label="YouTube">
+              <Youtube className="w-5 h-5" />
+            </a>
+            <a href="https://www.facebook.com/redeemermtcfamily/" className="text-muted-foreground hover:text-accent transition-colors" aria-label="Facebook">
+              <Facebook className="w-5 h-5" />
+            </a>
+            <a href="https://www.instagram.com/redeemermtc/" className="text-muted-foreground hover:text-accent transition-colors" aria-label="Instagram">
+              <Instagram className="w-5 h-5" />
+            </a>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden p-2" aria-label="Toggle menu">
+            {isOpen ? <X className="w-6 h-6 text-black" /> : <Menu className="w-6 h-6 text-foreground" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Navigation */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="lg:hidden bg-white border-t border-border max-h-[80vh] overflow-y-auto"
+          >
+            <nav className="flex flex-col px-6 py-4 gap-4">
+              {navItems.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  onClick={() => setIsOpen(false)}
+                  className="text-base font-medium text-foreground hover:text-accent transition-colors py-2"
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <div className="flex items-center gap-4 pt-4 border-t border-border">
+                <a href="https://www.youtube.com/@redeemermtc" className="text-muted-foreground hover:text-accent transition-colors" aria-label="YouTube">
+                  <Youtube className="w-5 h-5" />
+                </a>
+                <a href="https://www.facebook.com/redeemermtcfamily/" className="text-muted-foreground hover:text-accent transition-colors" aria-label="Facebook">
+                  <Facebook className="w-5 h-5" />
+                </a>
+                <a href="https://www.instagram.com/redeemermtc/" className="text-muted-foreground hover:text-accent transition-colors" aria-label="Instagram">
+                  <Instagram className="w-5 h-5" />
+                </a>
+              </div>
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
+  )
+}
