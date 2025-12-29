@@ -2,7 +2,7 @@
 
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { Clock, BookOpen } from "lucide-react"
+import { Clock, BookOpen, MapPin } from "lucide-react"
 import { useGoogleCalendarEvents, getUpcomingServices, formatEventDate, formatEventTime, CalendarEvent } from "@/lib/google-calendar-events"
 import { services as allServices } from "@/lib/events-data"
 
@@ -110,7 +110,7 @@ export default function ServicesPage() {
 
                         {service.location && (
                           <div className="flex items-center gap-2">
-                            <BookOpen className="w-4 h-4 text-accent" />
+                            <MapPin className="w-4 h-4 text-accent" />
                             <span>{service.location.includes("Redeemer") ? "Redeemer MTC" : service.location}</span>
                           </div>
                         )}

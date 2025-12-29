@@ -22,6 +22,7 @@ export function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
+      {/* Main Header */}
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <Link href="/" className="flex items-center">
@@ -50,22 +51,27 @@ export function Header() {
 
           {/* Social Icons */}
           <div className="hidden lg:flex items-center gap-4">
-            <a href="https://www.youtube.com/@redeemermtc" className="text-muted-foreground hover:text-accent transition-colors" aria-label="YouTube">
+            <a href="https://www.youtube.com/@redeemermtc" className="text-muted-foreground hover:text-accent transition-colors">
               <Youtube className="w-5 h-5" />
             </a>
-            <a href="https://www.facebook.com/redeemermtcfamily/" className="text-muted-foreground hover:text-accent transition-colors" aria-label="Facebook">
+            <a href="https://www.facebook.com/redeemermtcfamily/" className="text-muted-foreground hover:text-accent transition-colors">
               <Facebook className="w-5 h-5" />
             </a>
-            <a href="https://www.instagram.com/redeemermtc/" className="text-muted-foreground hover:text-accent transition-colors" aria-label="Instagram">
+            <a href="https://www.instagram.com/redeemermtc/" className="text-muted-foreground hover:text-accent transition-colors">
               <Instagram className="w-5 h-5" />
             </a>
           </div>
 
           {/* Mobile Menu Button */}
-          <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden p-2" aria-label="Toggle menu">
+          <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden p-2">
             {isOpen ? <X className="w-6 h-6 text-black" /> : <Menu className="w-6 h-6 text-foreground" />}
           </button>
         </div>
+      </div>
+
+      {/* ✅ IN PROGRESS BAR (UNDER HEADER) */}
+      <div className="w-full bg-yellow-400 text-black text-center py-2 text-sm font-semibold tracking-widest">
+        🚧 IN PROGRESS — SITE UNDER DEVELOPMENT 🚧
       </div>
 
       {/* Mobile Navigation */}
@@ -88,17 +94,6 @@ export function Header() {
                   {item.label}
                 </Link>
               ))}
-              <div className="flex items-center gap-4 pt-4 border-t border-border">
-                <a href="https://www.youtube.com/@redeemermtc" className="text-muted-foreground hover:text-accent transition-colors" aria-label="YouTube">
-                  <Youtube className="w-5 h-5" />
-                </a>
-                <a href="https://www.facebook.com/redeemermtcfamily/" className="text-muted-foreground hover:text-accent transition-colors" aria-label="Facebook">
-                  <Facebook className="w-5 h-5" />
-                </a>
-                <a href="https://www.instagram.com/redeemermtc/" className="text-muted-foreground hover:text-accent transition-colors" aria-label="Instagram">
-                  <Instagram className="w-5 h-5" />
-                </a>
-              </div>
             </nav>
           </motion.div>
         )}

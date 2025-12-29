@@ -1,121 +1,180 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { Heart, Users, Globe, HandHeart } from "lucide-react"
 import Image from "next/image"
 
-const values = [
-  {
-    icon: Heart,
-    title: "Worship",
-    description: "Glorifying God through heartfelt praise and reverent worship in spirit and truth.",
-  },
-  {
-    icon: Globe,
-    title: "Mission",
-    description: "Sharing the love of Christ with our community and beyond through service and outreach.",
-  },
-  {
-    icon: Users,
-    title: "Fellowship",
-    description: "Building genuine relationships and supporting one another on our faith journey.",
-  },
-  {
-    icon: HandHeart,
-    title: "Outreach",
-    description: "Extending God's love to those in need through compassionate service and community support.",
-  },
-]
-
 const missionPoints = [
-  "To be the repository of the divine doctrines revealed by Jesus Christ and proclaimed by His Apostle.",
+  "To be the repository of the divine doctrines revealed by Jesus Christ and proclaimed by His Apostles.",
   "To maintain these doctrines in their purity.",
-  "To promote the spiritual life through the administration of sacraments and by the ministry of the WORD.",
-  "To make disciples of all nations by the proclamation of the Gospel to all the world, and through the administration of Holy Baptism in the name of the True God.",
+  "To promote spiritual life through the administration of the sacraments and the ministry of the Word.",
+  "To make disciples of all nations through the proclamation of the Gospel and Holy Baptism.",
 ]
 
 export default function AboutPage() {
   return (
     <main className="min-h-screen">
       <Header />
-  {/* Hero Section */}
-  <section className="pt-32 pb-16 bg-primary">
-    <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center">
-      <p className="text-accent text-sm uppercase tracking-widest mb-3">About Us</p>
-      <h1 className="font-serif text-4xl md:text-5xl text-primary-foreground mb-4">About Us</h1>
-      <p className="text-primary-foreground/80 text-lg max-w-2xl mx-auto">
-        Learn about who we are and what we believe, and where to find us.
-      </p>
-    </div>
-  </section>
 
-{/* Mission Section */}
-<section className="py-8 lg:py-12 bg-background">
-  <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-    <h2 className="text-accent text-sm uppercase trwacking-[0.3em] mb-6">OUR MISSION</h2>
-    <div className="space-y-4">
-      {missionPoints.map((point, i) => (
-        <p key={i} className="text-foreground text-lg leading-relaxed">{point}</p>
+      {/* Hero */}
+      <section className="pt-32 pb-16 bg-primary">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center">
+          <p className="text-accent text-sm uppercase tracking-widest mb-3">
+            About Us
+          </p>
+          <h1 className="font-serif text-4xl md:text-5xl text-primary-foreground mb-4">
+            About Our Parish
+          </h1>
+          <p className="text-primary-foreground/80 text-lg max-w-2xl mx-auto">
+            Learn who we are, what we believe, and how we live out our faith.
+          </p>
+        </div>
+      </section>
+
+{/* Our Mission */}
+<section className="py-12 lg:py-16 bg-background">
+  <div className="max-w-4xl mx-auto px-6 lg:px-8">
+    <div className="text-center mb-10">
+      <h2 className="font-serif text-3xl md:text-4xl text-foreground">
+        Our Mission
+      </h2>
+    </div>
+
+<div className="space-y-6 text-muted-foreground text-lg leading-relaxed text-center">
+        {missionPoints.map((point, i) => (
+        <p key={i}>{point}</p>
       ))}
     </div>
   </div>
 </section>
 
-     {/* Who We Are */}
-<section className="py-16 lg:py-24 text-white w-full" style={{ backgroundColor: '#2596be' }}>
-  <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-    <h2 className="text-sm uppercase tracking-[0.3em] mb-8">WHO WE ARE</h2>
-    <div className="space-y-6 text-white/90 text-lg leading-relaxed">
-      <p>
-        We are a parish of the Diocese of North America of the Mar Thoma Church located in Northern NJ.
-        The name "Mar Thoma" translates to Saint Thomas, who was one of the twelve disciples of Jesus Christ that
-        came to the Malabar Coast of India in A.D. 52.
-      </p>
-      <p>
-        We share the burden of proclaiming the Gospel through Worship, Missions, Outreach, and Fellowship. Prayer
-        is deeply rooted in our worship and the visible source of power for our faith in action.
-      </p>
-      <p>
-        We are faithful stewards, taking care of God's creation, referencing the Holy Bible as inspired, inerrant,
-        sufficient, and the final authority over our beliefs and actions.
-      </p>
-      <p>
-        Our congregation was inaugurated on October 1st, 2017, led by Rt. Rev. Dr. Isaac Mar Philoxenos, Diocesan Bishop,
-        and Rev. Denny Philip, Diocesan Secretary. Started with 43 families/individuals, currently pastored by
-        Rev. Jess M. George.
-      </p>
-    </div>
-  </div>
-</section>
+      {/* What We Believe */}
+      <section className="py-12 lg:py-16 bg-secondary">
+        <div className="max-w-4xl mx-auto px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <p className="text-accent text-sm uppercase tracking-[0.3em] mb-3">
+              Our Faith
+            </p>
+            <h2 className="font-serif text-3xl md:text-4xl text-foreground">
+              What We Believe
+            </h2>
+          </div>
 
-      <section className="py-16 lg:py-24 bg-background">
+<div className="space-y-6 text-muted-foreground text-lg leading-relaxed text-center">           <p>
+              We believe in the one true God, the Father Almighty, Maker of heaven
+              and earth, and of all things visible and invisible.
+            </p>
+
+            <p>
+              We believe in one Lord Jesus Christ, the only begotten Son of God,
+              begotten of the Father before all worlds; Light of Light, very God
+              of very God, begotten not made, being of one substance with the
+              Father, by whom all things were made. For us and for our salvation,
+              He came down from heaven and was incarnate by the Holy Spirit of
+              the Virgin Mary and was made man.
+            </p>
+
+            <p>
+              He was crucified for us under Pontius Pilate, suffered and was
+              buried. On the third day He rose again, ascended into heaven, and
+              sits at the right hand of the Father. He will come again with glory
+              to judge both the living and the dead, and His Kingdom shall have
+              no end.
+            </p>
+
+            <p>
+              We believe in the Holy Spirit, the Lord and Giver of life, who
+              proceeds from the Father, who with the Father and the Son together
+              is worshiped and glorified, and who spoke through the prophets and
+              apostles.
+            </p>
+
+            <p>
+              We believe in one holy, catholic, and apostolic Church. We
+              acknowledge one baptism for the remission of sins and look forward
+              to the resurrection of the dead and the life of the world to come.
+            </p>
+
+            <p className="font-semibold text-foreground text-center">
+              Amen.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Who We Are */}
+      <section className="py-12 lg:py-16 bg-background">
   <div className="max-w-4xl mx-auto px-6 lg:px-8">
-    <h2 className="font-serif text-2xl md:text-3xl text-foreground text-center mb-12">OUR VICAR</h2>
-    
-    <div className="bg-white border border-border rounded-xl shadow-lg p-8 flex flex-col md:flex-row items-center gap-8">
-<div className="w-full md:w-1/3 relative aspect-[3/3]">
-  <Image
-    src="/IMG_0859.jpeg"
-    alt="Rev. Jess M. George"
-    fill
-    className="object-cover rounded-lg"
-    priority
-  />
-</div>
+    <div className="text-center mb-10">
+      <p className="text-accent text-sm uppercase tracking-[0.3em] mb-3">
+        Our Parish
+      </p>
+      <h2 className="font-serif text-3xl md:text-4xl text-foreground">
+        Who We Are
+      </h2>
+    </div>
 
-      {/* Text content */}
-      <div className="w-full md:w-2/3 text-foreground">
-        <h3 className="font-semibold text-xl mb-2">Rev. Jess M. George</h3>
-        <p className="text-muted-foreground leading-relaxed">
-          Rev. Jess M. George is a young, vibrant, and energetic leader, focused on the spiritual needs of the church.
-          He is mission-oriented and intent on making the church relevant to the community that it is placed in.
-          He, as well as Justeena Kochamma, are a blessing to our parish, and we look forward to growing under their leadership.
-        </p>
-      </div>
+<div className="space-y-6 text-muted-foreground text-lg leading-relaxed text-center">
+        <p>
+        We are a parish of the Diocese of North America of the Mar Thoma Church
+        located in Northern New Jersey. The name “Mar Thoma” translates to Saint
+        Thomas, one of the twelve disciples of Jesus Christ, who came to the
+        Malabar Coast of India in A.D. 52.
+      </p>
+
+      <p>
+        We share the calling of proclaiming the Gospel through Worship, Mission,
+        Outreach, and Fellowship. Prayer is deeply rooted in our worship and
+        serves as the visible source of strength for our faith in action.
+      </p>
+
+      <p>
+        We are faithful stewards of God’s creation and hold the Holy Bible as
+        inspired, inerrant, sufficient, and the final authority for our beliefs
+        and actions.
+      </p>
+
+      <p>
+        Our congregation was inaugurated on October 1, 2017, under the
+        leadership of Rt. Rev. Dr. Isaac Mar Philoxenos and Rev. Denny Philip.
+        Beginning with 43 families and individuals, the parish is currently
+        shepherded by Rev. Jess M. George.
+      </p>
     </div>
   </div>
-  
 </section>
 
+      {/* Our Vicar */}
+<section className="py-12 lg:py-16 bg-secondary/60">
+        <div className="max-w-4xl mx-auto px-6 lg:px-8">
+          <h2 className="font-serif text-2xl md:text-3xl text-foreground text-center mb-12">
+            Our Vicar
+          </h2>
+
+          <div className="bg-white border border-border rounded-xl shadow-lg p-8 flex flex-col md:flex-row items-center gap-8">
+            <div className="w-full md:w-1/3 relative aspect-square">
+              <Image
+                src="/IMG_0859.jpeg"
+                alt="Rev. Jess M. George"
+                fill
+                className="object-cover rounded-lg"
+                priority
+              />
+            </div>
+
+            <div className="w-full md:w-2/3 text-foreground">
+              <h3 className="font-semibold text-xl mb-2">
+                Rev. Jess M. George
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Rev. Jess M. George is a vibrant and mission-oriented leader
+                focused on the spiritual growth of the church. He is committed
+                to making the church relevant to the community it serves, and
+                together with Justeena Kochamma, continues to be a blessing to
+                our parish.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <Footer />
     </main>

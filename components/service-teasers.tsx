@@ -1,68 +1,41 @@
 "use client"
 
 import Link from "next/link"
-import { Clock, BookOpen } from "lucide-react"
+import { Clock, BookOpen, MapPin } from "lucide-react"
 import {
   useGoogleCalendarEvents,
+  getUpcomingServices,
   formatEventDate,
   formatEventTime,
+  type CalendarEvent,
 } from "@/lib/google-calendar-events"
 import { services as allServices } from "@/lib/events-data"
-
-// Helper: Filter services and keep up to 'limit' upcoming
-function getUpcomingServicesContinuous(events: any[], limit: number) {
-  const now = new Date()
-
-  // Filter only service-type events
-  const services = events
-    .filter(event => {
-      const title = event.title.toLowerCase()
-      return (
-        title.includes("holy communion") ||
-        title.includes("acts") ||
-        (title.includes("praise") && title.includes("worship"))
-      )
-    })
-    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
-
-  // Keep events that are within 24 hours after their start
-  const visible = services.filter(event => {
-    const eventStart = new Date(event.start)
-    const cutoff = new Date(eventStart.getTime() + 24 * 60 * 60 * 1000)
-    return cutoff >= now
-  })
-
-  // If fewer than limit, add future services beyond the visible ones
-  if (visible.length >= limit) return visible.slice(0, limit)
-
-  const needed = limit - visible.length
-  const extras = services
-    .filter(event => !visible.includes(event) && new Date(event.start) > now)
-    .slice(0, needed)
-
-  return [...visible, ...extras]
-}
 
 export function ServiceTeasers() {
   const { events, isLoading, error } = useGoogleCalendarEvents()
 
-  const services = getUpcomingServicesContinuous(events, 3)
+  // ✅ Services ONLY, disappear 6 hours after END (matches Services page)
+  const services: CalendarEvent[] = getUpcomingServices(events, 6).slice(0, 3)
 
   const getServiceData = (eventTitle: string) => {
     const titleLower = eventTitle.toLowerCase()
 
     if (titleLower.includes("holy communion")) {
-      return allServices.find(s =>
-        s.name.toLowerCase().includes("holy communion")
-      ) || null
+      return (
+        allServices.find((s) => s.name.toLowerCase().includes("holy communion")) ||
+        null
+      )
     } else if (titleLower.includes("praise") && titleLower.includes("worship")) {
-      return allServices.find(s =>
-        s.name.toLowerCase().includes("praise & worship")
-      ) || null
+      return (
+        allServices.find((s) =>
+          s.name.toLowerCase().includes("praise & worship")
+        ) || null
+      )
     } else if (titleLower.includes("acts worship")) {
-      return allServices.find(s =>
-        s.name.toLowerCase().includes("acts worship")
-      ) || null
+      return (
+        allServices.find((s) => s.name.toLowerCase().includes("acts worship")) ||
+        null
+      )
     } else {
       return null
     }
@@ -84,6 +57,19 @@ export function ServiceTeasers() {
     )
   }
 
+  // ✅ Layout rules:
+  // - 1 service: centered
+  // - 2 services: two columns, centered as a pair (no empty middle column)
+  // - 3+ services: normal responsive layout (back to original)
+  const gridClassName = [
+    "grid gap-5 justify-center",
+    services.length === 1 && "grid-cols-1",
+    services.length === 2 && "grid-cols-2",
+    services.length >= 3 && "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+  ]
+    .filter(Boolean)
+    .join(" ")
+
   return (
     <section className="py-16 bg-background">
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
@@ -96,13 +82,13 @@ export function ServiceTeasers() {
           </h2>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className={gridClassName}>
           {services.map((service) => {
-            const isSunday = new Date(service.start).getDay() === 0
+            const startDate = new Date(service.start)
+            const isSunday = startDate.getDay() === 0
+
             const matchedService = getServiceData(service.title)
-            const displayTitle = matchedService
-              ? matchedService.name
-              : service.title
+            const displayTitle = matchedService ? matchedService.name : service.title
 
             return (
               <div
@@ -135,16 +121,16 @@ export function ServiceTeasers() {
                     </span>
                   </div>
 
-                  {service.location && (
+                  {service.location ? (
                     <div className="flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-accent" />
+                      <MapPin className="w-4 h-4 text-accent" />
                       <span>
                         {service.location.includes("Redeemer")
                           ? "Redeemer MTC"
                           : service.location}
                       </span>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               </div>
             )

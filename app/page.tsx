@@ -1,3 +1,5 @@
+"use client"
+
 import { Header } from "@/components/header"
 import { Hero } from "@/components/hero"
 import { QuickLinks } from "@/components/quick-links"
@@ -30,12 +32,18 @@ const values = [
   },
 ]
 
-export default function Home() {
+export default function HomePage() {
   return (
     <main className="min-h-screen">
       <Header />
       <Hero />
       <QuickLinks />
+
+      {/* Services Section */}
+      <ServiceTeasers />
+
+      {/* Events Section */} 
+      <EventsTeaser />
 
       {/* Core Values Section */}
       <section className="py-16 lg:py-24 bg-secondary">
@@ -43,7 +51,6 @@ export default function Home() {
           <h2 className="font-serif text-2xl md:text-3xl text-foreground text-center mb-12">
             Our Core Values
           </h2>
-
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {values.map((value, i) => (
               <div
@@ -53,21 +60,13 @@ export default function Home() {
                 <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
                   <value.icon className="w-6 h-6 text-accent" />
                 </div>
-                <h3 className="font-serif text-xl text-foreground mb-2">
-                  {value.title}
-                </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {value.description}
-                </p>
+                <h3 className="font-serif text-xl text-foreground mb-2">{value.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{value.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
-
-      {/* Services + Events */}
-      <ServiceTeasers />
-      <EventsTeaser />
 
       <Footer />
     </main>

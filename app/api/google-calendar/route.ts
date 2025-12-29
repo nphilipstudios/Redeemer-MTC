@@ -5,9 +5,31 @@ const CALENDAR_ID =
   process.env.GOOGLE_CALENDAR_ID ||
   "0t69sj6mamgelh24g2uvmtu6mucm69gj@import.calendar.google.com"
 
+function isDateOnly(v: string) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(v)
+}
+
+function normalizeStart(raw: string) {
+  // If date-only, set local midnight
+  return isDateOnly(raw) ? `${raw}T00:00:00` : raw
+}
+
+function normalizeEnd(raw: string) {
+  // Google end.date is exclusive for all-day events
+  if (!isDateOnly(raw)) return raw
+  const exclusive = new Date(`${raw}T00:00:00`)
+  return new Date(exclusive.getTime() - 1).toISOString()
+}
+
 export async function GET() {
   try {
-    // Helpful sanity check (safe to keep)
+    if (!CALENDAR_ID) {
+      return NextResponse.json(
+        { error: "Missing GOOGLE_CALENDAR_ID", events: [] },
+        { status: 500 }
+      )
+    }
+
     if (!GOOGLE_CALENDAR_API_KEY) {
       console.error("Missing GOOGLE_CALENDAR_API_KEY")
       return NextResponse.json(
@@ -22,13 +44,20 @@ export async function GET() {
     const timeMax = new Date()
     timeMax.setMonth(timeMax.getMonth() + 6)
 
+    const params = new URLSearchParams({
+      key: GOOGLE_CALENDAR_API_KEY,
+      timeMin: timeMin.toISOString(),
+      timeMax: timeMax.toISOString(),
+      singleEvents: "true",   // ✅ expand recurring instances
+      orderBy: "startTime",   // ✅ required w/ singleEvents
+      maxResults: "2500",     // ✅ don’t cut off recurring
+    })
+
     const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
       CALENDAR_ID
-    )}/events?key=${GOOGLE_CALENDAR_API_KEY}&timeMin=${timeMin.toISOString()}&timeMax=${timeMax.toISOString()}&singleEvents=true&orderBy=startTime&maxResults=250`
+    )}/events?${params.toString()}`
 
-    const response = await fetch(url, {
-      cache: "no-store", // important for fresh events
-    })
+    const response = await fetch(url, { cache: "no-store" })
 
     if (!response.ok) {
       const errorText = await response.text()
@@ -42,14 +71,22 @@ export async function GET() {
 
     const data = await response.json()
 
-    const formattedEvents = (data.items || []).map((event: any) => ({
-      id: event.id,
-      title: event.summary || "Untitled Event",
-      description: event.description || "",
-      location: event.location || "",
-      start: event.start?.dateTime || event.start?.date,
-      end: event.end?.dateTime || event.end?.date,
-    }))
+    const formattedEvents = (data.items || [])
+      .map((event: any) => {
+        const startRaw: string | undefined = event.start?.dateTime || event.start?.date
+        const endRaw: string | undefined = event.end?.dateTime || event.end?.date
+        if (!startRaw || !endRaw) return null
+
+        return {
+          id: event.id,
+          title: event.summary || "Untitled Event",
+          description: event.description || "",
+          location: event.location || "",
+          start: normalizeStart(startRaw),
+          end: normalizeEnd(endRaw),
+        }
+      })
+      .filter(Boolean)
 
     return NextResponse.json({ events: formattedEvents })
   } catch (error) {
