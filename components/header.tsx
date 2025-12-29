@@ -13,7 +13,7 @@ const navItems = [
   { label: "Ministries", href: "/ministries" },
   { label: "Events", href: "/events" },
   { label: "Calendar", href: "/calendar" },
-  { label: "Rock of Redeemer", href: "#" },
+  //{ label: "Rock of Redeemer", href: "#" },
   { label: "Contact", href: "/contact" },
 ]
 
