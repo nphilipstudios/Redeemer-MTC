@@ -4,6 +4,7 @@ import Link from "next/link"
 import { ArrowRight, CalendarDays, MapPin } from "lucide-react"
 import {
   useGoogleCalendarEvents,
+  isServiceEvent,
   type CalendarEvent,
 } from "@/lib/google-calendar-events"
 
@@ -11,7 +12,7 @@ import {
 function startOfWeek(date: Date) {
   const d = new Date(date)
   d.setHours(0, 0, 0, 0)
-  const day = d.getDay() // Sunday = 0
+  const day = d.getDay() // Sun=0
   d.setDate(d.getDate() - day)
   return d
 }
@@ -61,57 +62,83 @@ function fmtTime(d: Date) {
   return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
 }
 
-// ---------- classification ----------
-function isRecurringLike(title: string) {
-  const t = title.toLowerCase()
-  return t.includes("bible study") || t.includes("prayer call")
+function safeDate(value?: string) {
+  if (!value) return null
+  const d = new Date(value)
+  return isNaN(d.getTime()) ? null : d
 }
 
-// ✅ NEVER show services in EventsTeaser (you already have ServiceTeasers)
-function isServiceTitle(title: string) {
-  const t = title.toLowerCase()
-  return (
-    t.includes("holy communion") ||
-    t.includes("acts") ||
-    (t.includes("praise") && t.includes("worship"))
-  )
+function isRecurringLike(e: CalendarEvent) {
+  const text = `${e.title ?? ""} ${e.description ?? ""}`.toLowerCase()
+  return text.includes("bible study") || text.includes("prayer call")
 }
 
-// ---------- chip UI ----------
+// ---------- UI pieces ----------
 function EventChip({ event }: { event: CalendarEvent }) {
-  const startDate = new Date(event.start)
-  const today = new Date()
-  const todayRing = isSameDay(startDate, today)
-  const recurring = isRecurringLike(event.title)
+  const startDate = safeDate(event.start)
+  if (!startDate) return null
+
+  const endDate = safeDate(event.end) || startDate
+  const now = new Date()
+
+  // ✅ Only "past" AFTER the event has ENDED
+  const isPast = endDate.getTime() < now.getTime()
+  const todayRing = isSameDay(startDate, now)
+  const recurring = isRecurringLike(event)
+
+  const strike = isPast ? "line-through opacity-70" : ""
+  const containerTone = isPast
+    ? "bg-card/50 border-border/50 text-muted-foreground"
+    : "bg-card hover:bg-secondary/60 border-border"
 
   return (
     <div
       className={[
-        "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm",
-        "bg-card hover:bg-secondary/60 border-border transition-colors",
+        "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors",
+        containerTone,
         todayRing ? "ring-2 ring-accent/50" : "",
       ].join(" ")}
       title={event.location ? `${event.title} • ${event.location}` : event.title}
     >
       {/* dots */}
       <span className="inline-flex items-center gap-1">
-        {recurring ? <span className="w-2 h-2 rounded-full bg-blue-400" /> : null}
-        <span className="w-2 h-2 rounded-full bg-accent/70" />
+        {recurring ? (
+          <span
+            className={`w-2 h-2 rounded-full ${
+              isPast ? "bg-orange-500/40" : "bg-orange-500"
+            }`}
+          />
+        ) : null}
+        <span
+          className={`w-2 h-2 rounded-full ${
+            isPast ? "bg-accent/30" : "bg-accent/70"
+          }`}
+        />
       </span>
 
-      <span className="text-accent font-semibold">{fmtMonthDay(startDate)}</span>
-      <span className="text-muted-foreground">{fmtTime(startDate)}</span>
+      {/* strike through DATE + TIME + TITLE */}
+      <span className={`text-accent font-semibold ${strike}`}>
+        {fmtMonthDay(startDate)}
+      </span>
 
-      <span className="text-foreground font-medium truncate max-w-[18rem]">
+      <span className={`text-muted-foreground ${strike}`}>
+        {fmtTime(startDate)}
+      </span>
+
+      <span
+        className={`font-medium truncate max-w-[18rem] ${strike} ${
+          isPast ? "" : "text-foreground"
+        }`}
+      >
         {event.title}
       </span>
 
       {event.location ? (
-        <span className="hidden md:inline-flex items-center gap-1 text-muted-foreground">
+        <span
+          className={`hidden md:inline-flex items-center gap-1 text-muted-foreground ${strike}`}
+        >
           <MapPin className="w-3.5 h-3.5" />
-          <span className="truncate max-w-[12rem]">
-            {event.location.includes("Redeemer") ? "Redeemer MTC" : event.location}
-          </span>
+          <span className="truncate max-w-[12rem]">{event.location}</span>
         </span>
       ) : null}
     </div>
@@ -130,8 +157,8 @@ function ChipSection({
   emptyText: string
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card/40 p-6">
-      <div className="flex items-start justify-between gap-4 mb-4">
+<div className="rounded-2xl border border-border bg-card p-6">
+    <div className="flex items-start justify-between gap-4 mb-4">
         <div>
           <h3 className="font-serif text-xl text-foreground">{title}</h3>
           {subtitle ? (
@@ -145,8 +172,8 @@ function ChipSection({
         <p className="text-sm text-muted-foreground">{emptyText}</p>
       ) : (
         <div className="flex flex-wrap gap-2">
-          {events.map((e) => (
-            <EventChip key={e.id} event={e} />
+          {events.map((e, idx) => (
+            <EventChip key={(e.id || e.title) + "-" + idx} event={e} />
           ))}
         </div>
       )}
@@ -157,49 +184,39 @@ function ChipSection({
 export function EventsTeaser() {
   const { events, isLoading, error } = useGoogleCalendarEvents()
 
-  if (isLoading) {
-    return (
-      <section className="py-16 lg:py-20 bg-secondary/30">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center">
-          <p className="text-muted-foreground">Loading events...</p>
-        </div>
-      </section>
-    )
-  }
-
-  if (error || !events?.length) return null
-
   const now = new Date()
   const weekStart = startOfWeek(now)
   const weekEnd = endOfWeek(now)
   const monthStart = startOfMonth(now)
   const monthEnd = endOfMonth(now)
 
-  const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000)
+  // ✅ exclude services
+  const nonService = (events || []).filter((e) => !isServiceEvent(e))
 
-  // ✅ includes recurring events (we do NOT exclude them)
-  // ✅ excludes services (so it never duplicates ServiceTeasers)
-  const upcomingAll = (events as CalendarEvent[])
-    .filter((e) => !isServiceTitle(e.title))
+  // ✅ THIS WEEK = future only (ignore bad dates)
+  const thisWeek = nonService
     .filter((e) => {
-      const startDate = new Date(e.start)
-      return startDate.getTime() >= oneHourAgo.getTime()
+      const s = safeDate(e.start)
+      return !!s && s.getTime() >= now.getTime()
     })
-    .slice()
-    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+    .filter((e) => {
+      const s = safeDate(e.start)!
+      return inRange(s, weekStart, weekEnd)
+    })
+    .sort((a, b) => (safeDate(a.start)!.getTime() - safeDate(b.start)!.getTime()))
 
-  const thisWeek = upcomingAll.filter((e) =>
-    inRange(new Date(e.start), weekStart, weekEnd)
-  )
-  const thisMonth = upcomingAll.filter((e) =>
-    inRange(new Date(e.start), monthStart, monthEnd)
-  )
-
-  if (thisWeek.length === 0 && thisMonth.length === 0) return null
+  // ✅ THIS MONTH = keep ALL events in the month (past + future)
+  const thisMonth = nonService
+    .filter((e) => {
+      const s = safeDate(e.start)
+      return !!s && inRange(s, monthStart, monthEnd)
+    })
+    .sort((a, b) => (safeDate(a.start)!.getTime() - safeDate(b.start)!.getTime()))
 
   return (
     <section className="py-16 lg:py-20 bg-secondary/30">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        {/* Header always shows */}
         <div className="text-center pb-8">
           <p className="text-accent text-sm uppercase tracking-widest mb-2">
             What&apos;s Happening
@@ -207,6 +224,14 @@ export function EventsTeaser() {
           <h2 className="font-serif text-3xl md:text-4xl text-foreground">
             Upcoming Events
           </h2>
+
+          {isLoading ? (
+            <p className="text-sm text-muted-foreground mt-3">Loading events…</p>
+          ) : error ? (
+            <p className="text-sm text-muted-foreground mt-3">
+              Couldn&apos;t load events right now.
+            </p>
+          ) : null}
         </div>
 
         <div className="grid lg:grid-cols-2 gap-6">
@@ -215,8 +240,14 @@ export function EventsTeaser() {
             subtitle={`${fmtDayShort(weekStart)} ${fmtMonthDay(
               weekStart
             )} – ${fmtDayShort(weekEnd)} ${fmtMonthDay(weekEnd)}`}
-            events={thisWeek}
-            emptyText="No events scheduled for this week."
+            events={isLoading || error ? [] : thisWeek}
+            emptyText={
+              isLoading
+                ? "Loading…"
+                : error
+                ? "Unable to load events."
+                : "No events scheduled for this week."
+            }
           />
 
           <ChipSection
@@ -225,8 +256,14 @@ export function EventsTeaser() {
               month: "long",
               year: "numeric",
             })}
-            events={thisMonth}
-            emptyText="No events scheduled for this month."
+            events={isLoading || error ? [] : thisMonth}
+            emptyText={
+              isLoading
+                ? "Loading…"
+                : error
+                ? "Unable to load events."
+                : "No events scheduled for this month."
+            }
           />
         </div>
 

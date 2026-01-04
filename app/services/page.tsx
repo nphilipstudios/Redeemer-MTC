@@ -3,44 +3,31 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Clock, BookOpen, MapPin } from "lucide-react"
-import { useGoogleCalendarEvents, getUpcomingServices, formatEventDate, formatEventTime, CalendarEvent } from "@/lib/google-calendar-events"
+import {
+  useGoogleCalendarEvents,
+  getUpcomingServices,
+  formatEventDate,
+  formatEventTime,
+  type CalendarEvent,
+  getSundaySchoolEventForDate,
+  prettyLocation,
+} from "@/lib/google-calendar-events"
 import { services as allServices } from "@/lib/events-data"
-
-function getContinuousUpcomingWith24h(events: CalendarEvent[], limit: number): CalendarEvent[] {
-  const now = new Date()
-
-  const filtered = events
-    .filter(event => {
-      const eventDate = new Date(event.start)
-      const cutoff = new Date(eventDate)
-      cutoff.setDate(cutoff.getDate() + 1)
-      return now < cutoff
-    })
-    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
-
-  if (filtered.length >= limit) return filtered.slice(0, limit)
-
-  const needed = limit - filtered.length
-  const extras = events
-    .filter(event => new Date(event.start) > now && !filtered.includes(event))
-    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
-    .slice(0, needed)
-
-  return [...filtered, ...extras]
-}
 
 export default function ServicesPage() {
   const { events, isLoading, error } = useGoogleCalendarEvents()
-  const upcomingServices: CalendarEvent[] = getContinuousUpcomingWith24h(getUpcomingServices(events), 6)
+
+  // ✅ Use your new method: Services ONLY, disappear 6 hours after END
+  const upcomingServices: CalendarEvent[] = getUpcomingServices(events, 6).slice(0, 6)
 
   const getServiceData = (eventTitle: string) => {
     const titleLower = eventTitle.toLowerCase()
     if (titleLower.includes("holy communion")) {
-      return allServices.find(s => s.name.toLowerCase().includes("holy communion")) || null
+      return allServices.find((s) => s.name.toLowerCase().includes("holy communion")) || null
     } else if (titleLower.includes("praise") && titleLower.includes("worship")) {
-      return allServices.find(s => s.name.toLowerCase().includes("praise & worship")) || null
+      return allServices.find((s) => s.name.toLowerCase().includes("praise & worship")) || null
     } else if (titleLower.includes("acts worship")) {
-      return allServices.find(s => s.name.toLowerCase().includes("acts worship")) || null
+      return allServices.find((s) => s.name.toLowerCase().includes("acts worship")) || null
     } else {
       return null
     }
@@ -66,12 +53,15 @@ export default function ServicesPage() {
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {upcomingServices.map(service => {
-                const isSunday = new Date(service.start).getDay() === 0
+              {upcomingServices.map((service) => {
                 const matchedService = getServiceData(service.title)
-
                 const displayTitle = matchedService?.name || service.title
-                const displayImage = matchedService?.image || "/placeholder.svg?height=144&width=400"
+                const displayImage =
+                  matchedService?.image || "/placeholder.svg?height=144&width=400"
+
+                // ✅ Sunday School is calendar-driven:
+                // show ONLY if there's a "Sunday School" event on the same date
+                const sundaySchool = getSundaySchoolEventForDate(events, service.start)
 
                 return (
                   <div
@@ -79,7 +69,9 @@ export default function ServicesPage() {
                     className="group bg-card rounded-xl overflow-hidden border border-border shadow-sm hover:shadow-md transition-all duration-300 relative"
                   >
                     <div className="absolute top-3 left-3 z-10 bg-card/90 backdrop-blur-sm rounded-lg px-3 py-1.5">
-                      <span className="text-accent font-semibold text-sm">{formatEventDate(service.start)}</span>
+                      <span className="text-accent font-semibold text-sm">
+                        {formatEventDate(service.start)}
+                      </span>
                     </div>
 
                     <div className="relative h-36 overflow-hidden bg-secondary">
@@ -96,22 +88,28 @@ export default function ServicesPage() {
                       </h3>
 
                       <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-                        {isSunday && (
+                        {/* ✅ Only render if it exists in Google Calendar */}
+                        {sundaySchool && (
                           <div className="flex items-center gap-2">
                             <BookOpen className="w-4 h-4 text-accent" />
-                            <span>Sunday School: 10:30 AM</span>
+                            <span>
+                              Sunday School: {formatEventTime(sundaySchool.start)}
+                              {sundaySchool.location
+                                ? ` • ${prettyLocation(sundaySchool.location)}`
+                                : ""}
+                            </span>
                           </div>
                         )}
 
                         <div className="flex items-center gap-2">
                           <Clock className="w-4 h-4 text-accent" />
-                          <span>{isSunday ? "11:30 AM" : formatEventTime(service.start)}</span>
+                          <span>{formatEventTime(service.start)}</span>
                         </div>
 
                         {service.location && (
                           <div className="flex items-center gap-2">
                             <MapPin className="w-4 h-4 text-accent" />
-                            <span>{service.location.includes("Redeemer") ? "Redeemer MTC" : service.location}</span>
+                            <span>{prettyLocation(service.location)}</span>
                           </div>
                         )}
                       </div>

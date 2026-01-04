@@ -7,24 +7,24 @@ import {
   useGoogleCalendarEvents,
   formatEventDate,
   formatEventTime,
-  isServiceTitle,
+  isServiceEvent,   // ✅ changed
+  prettyLocation,   // ✅ optional, but recommended for Redeemer -> Redeemer MTC
 } from "@/lib/google-calendar-events"
 
 export default function EventsPage() {
   const { events, isLoading, error } = useGoogleCalendarEvents()
 
   // ✅ FUTURE events only
-  // ✅ Includes recurring weekly events
-  // ✅ Excludes services
+  // ✅ Includes recurring weekly events (because API has singleEvents=true)
+  // ✅ Excludes services (service detection is now DESCRIPTION-based)
   const now = new Date()
   const upcomingEvents = events
-    .filter((e) => !isServiceTitle(e.title))
+    .filter((e) => !isServiceEvent(e)) // ✅ changed (no title param)
     .filter((e) => new Date(e.start) >= now)
     .slice()
     .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
     .slice(0, 6)
 
-  // Determine event group and corresponding color
   const getEventGroup = (title: string) => {
     const t = title.toLowerCase()
     if (t.includes("youth")) return { name: "Youth", color: "bg-yellow-400 text-yellow-800" }
@@ -100,7 +100,7 @@ export default function EventsPage() {
                       {event.location && (
                         <div className="flex items-center gap-2">
                           <MapPin className="w-4 h-4 text-accent" />
-                          <span>{event.location}</span>
+                          <span>{prettyLocation(event.location)}</span>
                         </div>
                       )}
 

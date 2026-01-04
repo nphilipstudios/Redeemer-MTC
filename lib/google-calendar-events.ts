@@ -59,15 +59,46 @@ export function useGoogleCalendarEvents() {
 }
 
 // ------------------------
-// Title classification
+// Classification (DESCRIPTION-BASED)
 // ------------------------
-export function isServiceTitle(title: string) {
-  const t = title.toLowerCase()
+
+/**
+ * Normalize text for matching.
+ */
+function norm(s?: string) {
+  return (s ?? "").toLowerCase()
+}
+
+/**
+ * ✅ Service detection (NOW uses DESCRIPTION only, not title)
+ * Put keywords like "holy communion", "acts worship", "praise & worship"
+ * into the Google Calendar DESCRIPTION.
+ */
+export function isServiceEvent(event: CalendarEvent) {
+  const d = norm(event.description)
   return (
-    t.includes("holy communion") ||
-    t.includes("acts") ||
-    (t.includes("praise") && t.includes("worship"))
+    d.includes("holy communion") ||
+    d.includes("acts worship") ||
+    d.includes("acts") || // keep if you want ACTS shorthand in description
+    (d.includes("praise") && d.includes("worship"))
   )
+}
+
+/**
+ * ✅ Sunday School detection (DESCRIPTION-BASED, not title)
+ * Put "sunday school" in the Google Calendar DESCRIPTION.
+ */
+export function isSundaySchoolEvent(event: CalendarEvent) {
+  const d = norm(event.description)
+  return d.includes("sunday school")
+}
+
+/**
+ * ✅ Location display helper
+ */
+export function prettyLocation(location?: string) {
+  if (!location) return ""
+  return location.toLowerCase().includes("redeemer") ? "Redeemer MTC" : location
 }
 
 // ------------------------
@@ -76,6 +107,33 @@ export function isServiceTitle(title: string) {
 function safeDate(value: string) {
   const d = new Date(value)
   return isNaN(d.getTime()) ? null : d
+}
+
+function isSameDay(a: Date, b: Date) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  )
+}
+
+/**
+ * Find a Sunday School event on the same date as `dateString`.
+ * ✅ Matches by DESCRIPTION (contains "sunday school")
+ * ✅ If none exists, returns null (so your UI shows nothing).
+ */
+export function getSundaySchoolEventForDate(events: CalendarEvent[], dateString: string) {
+  const target = safeDate(dateString)
+  if (!target) return null
+
+  return (
+    events.find((e) => {
+      if (!isSundaySchoolEvent(e)) return false
+      const start = safeDate(e.start)
+      if (!start) return false
+      return isSameDay(start, target)
+    }) || null
+  )
 }
 
 /**
@@ -88,7 +146,7 @@ export function isVisibleHoursAfterEnd(event: CalendarEvent, hoursAfterEnd = 6) 
   const start = safeDate(event.start)
   const end = safeDate(event.end) || start
 
-  if (!start) return false // can't time it => don't show
+  if (!start) return false
 
   const effectiveEnd = end ?? start
   const cutoff = new Date(effectiveEnd.getTime() + hoursAfterEnd * 60 * 60 * 1000)
@@ -126,11 +184,12 @@ export function getContinuousUpcoming(events: CalendarEvent[], limit: number) {
 
 /**
  * SERVICES ONLY.
- * ✅ Automatically disappears 6 hours after it ENDED.
+ * ✅ Automatically disappears N hours after it ENDED (default 6).
+ * ✅ Service detection is DESCRIPTION-based.
  */
 export function getUpcomingServices(events: CalendarEvent[], hoursAfterEnd = 6) {
   return events
-    .filter((e) => isServiceTitle(e.title))
+    .filter((e) => isServiceEvent(e))
     .filter((e) => isVisibleHoursAfterEnd(e, hoursAfterEnd))
     .slice()
     .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
@@ -138,12 +197,12 @@ export function getUpcomingServices(events: CalendarEvent[], hoursAfterEnd = 6) 
 
 /**
  * EVENTS (non-services).
- * ✅ Never includes services.
- * ✅ Recurring (Bible Study / Prayer Call) stays included.
+ * ✅ Never includes services (based on DESCRIPTION)
+ * ✅ Recurring stays included (Bible Study / Prayer Call etc)
  * Uses the same 24h past buffer behavior as your original.
  */
 export function getUpcomingEvents(events: CalendarEvent[]) {
-  return filterFutureEvents(events).filter((e) => !isServiceTitle(e.title))
+  return filterFutureEvents(events).filter((e) => !isServiceEvent(e))
 }
 
 /**
