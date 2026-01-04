@@ -7,37 +7,37 @@ const ministries = [
   {
     slug: "Music",
     title: "Music Ministry",
-    description: "Serve through music, sound, and media to create meaningful worship experiences.",
+    description: "Supporting worship through music, sound, and media, helping create an atmosphere of reverence and participation during our services.",
     image: "/Music Img.png",
   },
   {
     slug: "youth",
     title: "Youth Fellowship",
-    description: "Engaging programs for teens to grow in faith and build lasting friendships.",
+    description: "A space for our youth to grow in faith, build friendships, and stay connected to the life of the church through fellowship and discussion.",
     image: "/Youth Img.png",
   },
   {
     slug: "children",
     title: "Children's Ministry",
-    description: "Age-appropriate teaching and activities for our youngest members.",
+    description: "Helping children grow in faith through teaching, activities, and a caring church community that supports them as they learn about God.",
     image: "/Children Img.png",
   },
   {
     slug: "men",
     title: "Men's Ministry",
-    description: "Building godly men through fellowship, accountability, and service.",
+    description: "Encouraging men to grow spiritually through fellowship, shared responsibility, and service within the church and community.",
     image: "/Men Img.png",
   },
   {
     slug: "women",
     title: "Women's Ministry",
-    description: "Encouraging and equipping women to grow in their faith and relationships.",
+    description: "Bringing women together for fellowship, spiritual growth, and mutual support as we grow in faith and service.",
     image: "/Women Img.png",
   },
   {
     slug: "prayer",
     title: "Prayer Ministry",
-    description: "Praying for the church and community.",
+    description: "Upholding the church, its families, and the wider community through prayer, reflection, and intercession.",
     image: "/Prayer Img.png",
   },
 ]
