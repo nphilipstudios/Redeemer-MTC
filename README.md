@@ -1,3 +1,3 @@
 # Redeemer-MTC
 
-# test
+# Redeemer MTC Website
