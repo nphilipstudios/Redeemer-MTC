@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { DM_Sans, Playfair_Display } from "next/font/google"
 import Script from "next/script"
 import "./globals.css"
+import { Analytics } from "@vercel/analytics/next"
 
 const _dmSans = DM_Sans({ subsets: ["latin"] })
 const _playfair = Playfair_Display({ subsets: ["latin"] })
