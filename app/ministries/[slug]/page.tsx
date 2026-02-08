@@ -179,7 +179,6 @@ export default async function MinistryDetailPage({ params }: { params: Promise<{
                     </div>
                   )}
                 </div>
-                <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">Get Involved</Button>
               </div>
             </div>
           </div>
