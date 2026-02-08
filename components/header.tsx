@@ -70,9 +70,9 @@ export function Header() {
       </div>
 
       {/* ✅ IN PROGRESS BAR (UNDER HEADER) */}
-      <div className="w-full bg-yellow-400 text-black text-center py-2 text-sm font-semibold tracking-widest">
+    {/*  <div className="w-full bg-yellow-400 text-black text-center py-2 text-sm font-semibold tracking-widest">
         🚧 IN PROGRESS — SITE UNDER DEVELOPMENT 🚧
-      </div>
+      </div> */}
 
       {/* Mobile Navigation */}
       <AnimatePresence>
