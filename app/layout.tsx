@@ -1,7 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { DM_Sans, Playfair_Display } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
 import Script from "next/script"
 import "./globals.css"
 
@@ -40,7 +39,7 @@ export default function RootLayout({
           `}
         </Script>
 
-        {/* Userback widget */}
+        {/* Userback */}
         <Script id="userback-widget" strategy="afterInteractive">
           {`
             window.Userback = window.Userback || {};
@@ -55,10 +54,7 @@ export default function RootLayout({
         </Script>
       </head>
 
-      <body className="font-sans antialiased">
-        {children}
-        <Analytics />
-      </body>
+      <body className="font-sans antialiased">{children}</body>
     </html>
   )
 }
