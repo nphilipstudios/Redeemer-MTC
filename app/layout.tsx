@@ -10,16 +10,13 @@ const _playfair = Playfair_Display({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Redeemer MTC | Lighted to Lighten",
-  description:
-    "A welcoming community of faith in Christ - Worship, Mission, Outreach, Fellowship",
+  description: "A welcoming community of faith in Christ - Worship, Mission, Outreach, Fellowship",
   icons: {
     icon: "/yt cross.png",
     shortcut: "yt cross.png",
     apple: "yt cross.png",
   },
 }
-
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID
 
 export default function RootLayout({
   children,
@@ -29,24 +26,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {GA_ID ? (
-          <>
-            {/* Google tag (gtag.js) */}
-            <Script
-              async
-              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-              strategy="afterInteractive"
-            />
-            <Script id="gtag-init" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${GA_ID}');
-              `}
-            </Script>
-          </>
-        ) : null}
+        {/* Google tag (gtag.js) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-TEZWRD4TZV"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-TEZWRD4TZV');
+          `}
+        </Script>
       </head>
 
       <body className="font-sans antialiased">
