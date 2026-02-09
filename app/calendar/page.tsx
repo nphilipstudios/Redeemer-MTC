@@ -4,17 +4,68 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { useState } from "react"
 import { ChevronLeft, ChevronRight, Clock, MapPin } from "lucide-react"
-import { useChurchTrac } from "@/lib/churchtrac-events"
+import {
+  useGoogleCalendarEvents,
+  type CalendarEvent,
+  prettyLocation,
+  formatEventTime,
+} from "@/lib/google-calendar-events"
+import { getEventGroup } from "@/lib/eventgroup"
 
 const monthNames = [
-  "January","February","March","April","May","June",
-  "July","August","September","October","November","December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ]
+
+function isSameDay(a: Date, b: Date) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  )
+}
+
+// Google Calendar all-day events come back as YYYY-MM-DD (no time).
+function hasTime(dateString?: string) {
+  return !!dateString && dateString.includes("T")
+}
+
+function safeDate(value: string) {
+  const d = new Date(value)
+  return isNaN(d.getTime()) ? null : d
+}
+
+function extractFirstUrl(text?: string) {
+  if (!text) return null
+  const match = text.match(/https?:\/\/[^\s)]+/i)
+  return match ? match[0] : null
+}
+
+function prettyUrlLabel(url: string) {
+  try {
+    const u = new URL(url)
+    return u.hostname.replace(/^www\./, "")
+  } catch {
+    return "Open link"
+  }
+}
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDay, setSelectedDay] = useState<number | null>(null)
-  const { events, loading } = useChurchTrac()
+
+  // ✅ Use Google Calendar (not ChurchTrac)
+  const { events, isLoading, error } = useGoogleCalendarEvents()
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -28,60 +79,61 @@ export default function CalendarPage() {
   for (let i = 0; i < startingDay; i++) days.push(null)
   for (let i = 1; i <= daysInMonth; i++) days.push(i)
 
-  const getDotColor = (category: string) => {
-    switch (category) {
-      case "Sunday Service": return "bg-accent"
-      case "Recurring": return "bg-orange-500"
-      case "Men's": return "bg-blue-500"
-      case "Women's": return "bg-purple-500"
-      case "Youth": return "bg-yellow-400"
-      case "Missions": return "bg-green-500"
-      case "Music": return "bg-red-500"
-      case "Prayer Meeting": return "bg-blue-900"
-      default: return "bg-lime-500"
-    }
-  }
-
   const isTodayDayNumber = (day: number) => {
     const now = new Date()
     return now.getFullYear() === year && now.getMonth() === month && now.getDate() === day
   }
 
+  // Use shared event-group logic everywhere.
+  const getDotColor = (name: string) => {
+    switch (name) {
+      case "Sunday Service":
+        return "bg-accent"
+      case "Recurring":
+        return "bg-orange-500"
+      case "Men's":
+        return "bg-blue-500"
+      case "Women's":
+        return "bg-purple-500"
+      case "Youth":
+        return "bg-yellow-400"
+      case "Missions":
+        return "bg-green-500"
+      case "Music":
+        return "bg-red-500"
+      case "Prayer Meeting":
+        return "bg-blue-900"
+      default:
+        return "bg-lime-500"
+    }
+  }
+
   const getEventsForDay = (day: number) => {
-    const targetDate = new Date(year, month, day)
-    targetDate.setHours(0, 0, 0, 0)
+    const target = new Date(year, month, day)
+    target.setHours(0, 0, 0, 0)
 
-    return events
+    return (events as CalendarEvent[])
       .map((e) => {
-        const titleLower = e.title.toLowerCase()
-        let category: string = "Other"
-        let recurring = false
+        const startDate = safeDate(e.start)
+        const endDate = safeDate(e.end)
 
-        if (titleLower.includes("service") || titleLower.includes("communion") || titleLower.includes("worship")) {
-          category = "Sunday Service"
-        } else if (titleLower.includes("bible study") || titleLower.includes("saturday morning prayer call")) {
-          category = "Recurring"
-          recurring = true
-        } else if (titleLower.includes("men")) category = "Men's"
-        else if (titleLower.includes("women")) category = "Women's"
-        else if (titleLower.includes("youth")) category = "Youth"
-        else if (titleLower.includes("music")) category = "Music"
-        else if (titleLower.includes("prayer")) category = "Prayer Meeting"
-        else if (titleLower.includes("feed my starving children") || titleLower.includes("father's cupboard")) category = "Missions"
-        else category = "Other"
+        const group = getEventGroup(e)
+        const recurring = group.name === "Recurring"
 
         return {
           ...e,
-          startDate: new Date(e.startDate),
-          category,
+          startDate,
+          endDate,
+          category: group.name,
           recurring,
+          hasTime: hasTime(e.start),
         }
       })
       .filter((e) => {
-        const d = new Date(e.startDate)
-        d.setHours(0, 0, 0, 0)
-        return d.getTime() === targetDate.getTime()
+        if (!e.startDate) return false
+        return isSameDay(e.startDate, target)
       })
+      .sort((a, b) => (a.startDate?.getTime() ?? 0) - (b.startDate?.getTime() ?? 0))
   }
 
   const prevMonth = () => {
@@ -103,17 +155,23 @@ export default function CalendarPage() {
       <section className="pt-32 pb-20 lg:pb-28 bg-background">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-12">
-            <p className="text-accent text-sm uppercase tracking-widest mb-3">
-              Plan Your Visit
-            </p>
-            <h1 className="font-serif text-4xl md:text-5xl text-foreground">
-              Church Calendar
-            </h1>
+            <p className="text-accent text-sm uppercase tracking-widest mb-3">Plan Your Visit</p>
+            <h1 className="font-serif text-4xl md:text-5xl text-foreground">Church Calendar</h1>
+
+            {isLoading ? (
+              <p className="text-sm text-muted-foreground mt-3">Loading calendar…</p>
+            ) : error ? (
+              <p className="text-sm text-muted-foreground mt-3">Couldn&apos;t load calendar right now.</p>
+            ) : null}
           </div>
 
-          {loading ? (
+          {isLoading ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">Loading calendar...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Unable to load calendar.</p>
             </div>
           ) : (
             <div className="grid lg:grid-cols-3 gap-8">
@@ -196,40 +254,31 @@ export default function CalendarPage() {
                 {/* Legend */}
                 <div className="flex flex-wrap gap-4 mt-6 pt-4 border-t border-border text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-accent" />
-                    Sunday Service
+                    <span className="w-3 h-3 rounded-full bg-accent" /> Sunday Service
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-orange-500" />
-                    Recurring
+                    <span className="w-3 h-3 rounded-full bg-orange-500" /> Recurring
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-blue-500" />
-                    Men&apos;s
+                    <span className="w-3 h-3 rounded-full bg-blue-500" /> Men&apos;s
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-purple-500" />
-                    Women&apos;s
+                    <span className="w-3 h-3 rounded-full bg-purple-500" /> Women&apos;s
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-yellow-400" />
-                    Youth
+                    <span className="w-3 h-3 rounded-full bg-yellow-400" /> Youth
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-red-500" />
-                    Music
+                    <span className="w-3 h-3 rounded-full bg-red-500" /> Music
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-green-500" />
-                    Missions
+                    <span className="w-3 h-3 rounded-full bg-green-500" /> Missions
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-blue-900" />
-                    Prayer Meeting
+                    <span className="w-3 h-3 rounded-full bg-blue-900" /> Prayer Meeting
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-lime-500" />
-                    Other
+                    <span className="w-3 h-3 rounded-full bg-lime-500" /> Other
                   </div>
                 </div>
               </div>
@@ -237,15 +286,17 @@ export default function CalendarPage() {
               {/* Selected Day Details */}
               <div className="bg-card rounded-xl border border-border p-6">
                 <h3 className="font-serif text-xl text-foreground mb-4">
-                  {selectedDay ? `${monthNames[month]} ${selectedDay}, ${year}` : "Select a day"}
+                  {selectedDay
+                    ? `${monthNames[month]} ${selectedDay}, ${year}`
+                    : "Select a day"}
                 </h3>
 
                 {selectedData.length > 0 ? (
                   <div className="space-y-4">
                     {selectedData.map((event, i) => (
                       <div
-                        key={i}
-                        className={`p-4 rounded-lg border ${
+                        key={event.id ?? i}
+                        className={`p-4 rounded-lg border min-w-0 ${
                           event.category === "Sunday Service"
                             ? "border-accent bg-accent/10"
                             : event.category === "Recurring"
@@ -265,50 +316,65 @@ export default function CalendarPage() {
                             : "border-lime-500 bg-lime-500/10"
                         }`}
                       >
-                        {event.recurring && (
-                          <span className="text-xs uppercase tracking-wider font-medium">
-                            Recurring
-                          </span>
-                        )}
-                        {!event.recurring && event.category !== "Other" && (
-                          <span className="text-xs uppercase tracking-wider font-medium">
-                            {event.category}
-                          </span>
-                        )}
+                        {event.recurring ? (
+                          <span className="text-xs uppercase tracking-wider font-medium">Recurring</span>
+                        ) : event.category !== "Other" ? (
+                          <span className="text-xs uppercase tracking-wider font-medium">{event.category}</span>
+                        ) : null}
 
-                        <h4 className="font-serif text-lg text-foreground mt-1">
-                          {event.title}
-                        </h4>
+                        {(() => {
+                          const url = extractFirstUrl(event.description)
+                          const cleanDescription = event.description?.replace(url ?? "", "").trim()
+                          const titleNode = (
+                            <h4 className="font-serif text-lg text-foreground mt-1 break-words">{event.title}</h4>
+                          )
 
-                        <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
-                          <Clock className="w-4 h-4" />
-                          <span>
-                            {event.startDate.toLocaleTimeString("en-US", {
-                              hour: "numeric",
-                              minute: "2-digit",
-                            })}
-                          </span>
-                        </div>
+                          return url ? (
+                            <div className="min-w-0">
+                              {titleNode}
+                              <a
+                                href={url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="mt-2 inline-flex items-center text-sm text-accent hover:text-accent/80 transition-colors break-all"
+                              >
+                                {prettyUrlLabel(url)}
+                              </a>
+                            </div>
+                          ) : (
+                            titleNode
+                          )
+                        })()}
 
-                        {event.location && (
+                        {/* ✅ Only show time if the event actually has a time */}
+                        {event.hasTime ? (
+                          <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                            <Clock className="w-4 h-4" />
+                            <span>{formatEventTime(event.start)}</span>
+                          </div>
+                        ) : null}
+
+                        {event.location ? (
                           <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
                             <MapPin className="w-4 h-4" />
-                            <span>{event.location}</span>
+                            <span className="break-words">{prettyLocation(event.location)}</span>
                           </div>
-                        )}
+                        ) : null}
 
-                        {event.description && (
-                          <p className="mt-2 text-sm text-muted-foreground">
-                            {event.description}
-                          </p>
-                        )}
+                        {(() => {
+                          const url = extractFirstUrl(event.description)
+                          const cleanDescription = event.description?.replace(url ?? "", "").trim()
+                          return cleanDescription ? (
+                            <p className="mt-2 text-sm text-muted-foreground break-words whitespace-pre-line line-clamp-5">
+                              {cleanDescription}
+                            </p>
+                          ) : null
+                        })()}
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-muted-foreground text-sm">
-                    No events scheduled for this day.
-                  </p>
+                  <p className="text-muted-foreground text-sm">No events scheduled for this day.</p>
                 )}
               </div>
             </div>

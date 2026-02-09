@@ -61,36 +61,31 @@ export function useGoogleCalendarEvents() {
 // ------------------------
 // Classification (DESCRIPTION-BASED)
 // ------------------------
-
-/**
- * Normalize text for matching.
- */
 function norm(s?: string) {
   return (s ?? "").toLowerCase()
 }
 
 /**
- * ✅ Service detection (NOW uses DESCRIPTION only, not title)
+ * ✅ Service detection (DESCRIPTION-only)
  * Put keywords like "holy communion", "acts worship", "praise & worship"
- * into the Google Calendar DESCRIPTION.
+ * in the Google Calendar DESCRIPTION.
  */
 export function isServiceEvent(event: CalendarEvent) {
   const d = norm(event.description)
   return (
     d.includes("holy communion") ||
     d.includes("acts worship") ||
-    d.includes("acts") || // keep if you want ACTS shorthand in description
+    d.includes("acts") ||
     (d.includes("praise") && d.includes("worship"))
   )
 }
 
 /**
- * ✅ Sunday School detection (DESCRIPTION-BASED, not title)
+ * ✅ Sunday School detection (DESCRIPTION-only)
  * Put "sunday school" in the Google Calendar DESCRIPTION.
  */
 export function isSundaySchoolEvent(event: CalendarEvent) {
-  const d = norm(event.description)
-  return d.includes("sunday school")
+  return norm(event.description).includes("sunday school")
 }
 
 /**
@@ -109,6 +104,14 @@ function safeDate(value: string) {
   return isNaN(d.getTime()) ? null : d
 }
 
+/**
+ * Google all-day events are returned as "YYYY-MM-DD" (no "T").
+ * Timed events include "T" (e.g. "YYYY-MM-DDT10:00:00-05:00").
+ */
+export function hasTime(dateString?: string) {
+  return !!dateString && dateString.includes("T")
+}
+
 function isSameDay(a: Date, b: Date) {
   return (
     a.getFullYear() === b.getFullYear() &&
@@ -120,9 +123,12 @@ function isSameDay(a: Date, b: Date) {
 /**
  * Find a Sunday School event on the same date as `dateString`.
  * ✅ Matches by DESCRIPTION (contains "sunday school")
- * ✅ If none exists, returns null (so your UI shows nothing).
+ * ✅ If none exists, returns null.
  */
-export function getSundaySchoolEventForDate(events: CalendarEvent[], dateString: string) {
+export function getSundaySchoolEventForDate(
+  events: CalendarEvent[],
+  dateString: string
+) {
   const target = safeDate(dateString)
   if (!target) return null
 
@@ -155,8 +161,9 @@ export function isVisibleHoursAfterEnd(event: CalendarEvent, hoursAfterEnd = 6) 
 }
 
 /**
- * Generic: remove events older than `minutesPast` minutes (default 24 hours),
+ * Generic: remove events older than `minutesPast` minutes (default 24h),
  * then sort ascending by start.
+ * ✅ Keeps all-day events too (they have valid dates, just no time).
  */
 export function filterFutureEvents(events: CalendarEvent[], minutesPast = 24 * 60) {
   const now = new Date()
@@ -174,10 +181,6 @@ export function filterFutureEvents(events: CalendarEvent[], minutesPast = 24 * 6
 // ------------------------
 // Outputs used by components/pages
 // ------------------------
-
-/**
- * Get up to `limit` upcoming (uses 24h past buffer like your original).
- */
 export function getContinuousUpcoming(events: CalendarEvent[], limit: number) {
   return filterFutureEvents(events).slice(0, limit)
 }
@@ -185,7 +188,6 @@ export function getContinuousUpcoming(events: CalendarEvent[], limit: number) {
 /**
  * SERVICES ONLY.
  * ✅ Automatically disappears N hours after it ENDED (default 6).
- * ✅ Service detection is DESCRIPTION-based.
  */
 export function getUpcomingServices(events: CalendarEvent[], hoursAfterEnd = 6) {
   return events
@@ -197,9 +199,8 @@ export function getUpcomingServices(events: CalendarEvent[], hoursAfterEnd = 6) 
 
 /**
  * EVENTS (non-services).
- * ✅ Never includes services (based on DESCRIPTION)
- * ✅ Recurring stays included (Bible Study / Prayer Call etc)
- * Uses the same 24h past buffer behavior as your original.
+ * ✅ Never includes services (DESCRIPTION-based)
+ * ✅ Includes recurring + all-day events too
  */
 export function getUpcomingEvents(events: CalendarEvent[]) {
   return filterFutureEvents(events).filter((e) => !isServiceEvent(e))
@@ -209,7 +210,9 @@ export function getUpcomingEvents(events: CalendarEvent[]) {
  * All events, sorted (no filtering).
  */
 export function getAllEvents(events: CalendarEvent[]) {
-  return events.slice().sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+  return events
+    .slice()
+    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
 }
 
 // ------------------------
@@ -220,7 +223,14 @@ export function formatEventDate(dateString: string): string {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
 }
 
+/**
+ * ✅ IMPORTANT:
+ * If the event has no time (all-day event), return "" so your UI can hide it.
+ * This prevents displaying "12:00 AM".
+ */
 export function formatEventTime(dateString: string): string {
+  if (!hasTime(dateString)) return ""
+
   const date = new Date(dateString)
   return date.toLocaleTimeString("en-US", {
     hour: "numeric",

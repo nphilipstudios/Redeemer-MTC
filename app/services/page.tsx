@@ -17,8 +17,9 @@ import { services as allServices } from "@/lib/events-data"
 export default function ServicesPage() {
   const { events, isLoading, error } = useGoogleCalendarEvents()
 
-  // ✅ Use your new method: Services ONLY, disappear 6 hours after END
-  const upcomingServices: CalendarEvent[] = getUpcomingServices(events, 6).slice(0, 6)
+  // ✅ Services ONLY, disappear 6 hours after END
+  // ✅ Do NOT cap the list — show all future services
+  const upcomingServices: CalendarEvent[] = getUpcomingServices(events, 6)
 
   const getServiceData = (eventTitle: string) => {
     const titleLower = eventTitle.toLowerCase()
