@@ -73,6 +73,41 @@ function isRecurringLike(e: CalendarEvent) {
   return text.includes("bible study") || text.includes("prayer call")
 }
 
+function getEventGroupKey(e: CalendarEvent) {
+  const text = `${e.title ?? ""} ${e.description ?? ""}`.toLowerCase()
+
+  // NOTE: order matters ("women" contains "men"), so check women's first with word boundaries
+  if (/\byouth\b/.test(text)) return "Youth"
+  if (/\bwomen\b|\bwomen\s*'?s\b|\bwoman\b/.test(text)) return "Women's"
+  if (/\bmen\b|\bmen\s*'?s\b|\bman\b/.test(text)) return "Men's"
+  if (/\bbible\s*study\b|\bprayer\s*call\b/.test(text)) return "Recurring"
+  if (/\bmissions\b|\bfeed\s+my\s+starving\s+children\b|\bfather'?s\s+cupboard\b/.test(text)) return "Missions"
+  if (/\bmusic\b|\bchoir\b|\bworship\s+team\b|\bsound\b|\bmedia\b/.test(text)) return "Music"
+  if (/\bprayer\s+meeting\b/.test(text)) return "Prayer Meeting"
+  return "Other"
+}
+
+function getDotColorClass(group: string) {
+  switch (group) {
+    case "Youth":
+      return "bg-yellow-400"
+    case "Men's":
+      return "bg-blue-500"
+    case "Women's":
+      return "bg-purple-500"
+    case "Recurring":
+      return "bg-orange-500"
+    case "Missions":
+      return "bg-green-500"
+    case "Music":
+      return "bg-red-500"
+    case "Prayer Meeting":
+      return "bg-blue-900"
+    default:
+      return "bg-lime-500"
+  }
+}
+
 // ---------- UI pieces ----------
 function EventChip({ event }: { event: CalendarEvent }) {
   const startDate = safeDate(event.start)
@@ -84,7 +119,8 @@ function EventChip({ event }: { event: CalendarEvent }) {
   // ✅ Only "past" AFTER the event has ENDED
   const isPast = endDate.getTime() < now.getTime()
   const todayRing = isSameDay(startDate, now)
-  const recurring = isRecurringLike(event)
+  const group = getEventGroupKey(event)
+  const dotColor = getDotColorClass(group)
 
   const strike = isPast ? "line-through opacity-70" : ""
   const containerTone = isPast
@@ -100,21 +136,8 @@ function EventChip({ event }: { event: CalendarEvent }) {
       ].join(" ")}
       title={event.location ? `${event.title} • ${event.location}` : event.title}
     >
-      {/* dots */}
-      <span className="inline-flex items-center gap-1">
-        {recurring ? (
-          <span
-            className={`w-2 h-2 rounded-full ${
-              isPast ? "bg-orange-500/40" : "bg-orange-500"
-            }`}
-          />
-        ) : null}
-        <span
-          className={`w-2 h-2 rounded-full ${
-            isPast ? "bg-accent/30" : "bg-accent/70"
-          }`}
-        />
-      </span>
+      {/* dot (color by event type) */}
+      <span className={["w-2 h-2 rounded-full", dotColor, isPast ? "opacity-40" : ""].join(" ")} />
 
       {/* strike through DATE + TIME + TITLE */}
       <span className={`text-accent font-semibold ${strike}`}>

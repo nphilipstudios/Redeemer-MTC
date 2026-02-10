@@ -11,6 +11,7 @@ import {
   type CalendarEvent,
   getSundaySchoolEventForDate,
   prettyLocation,
+  prettyTitle,
 } from "@/lib/google-calendar-events"
 import { services as allServices } from "@/lib/events-data"
 
@@ -78,14 +79,14 @@ export default function ServicesPage() {
                     <div className="relative h-36 overflow-hidden bg-secondary">
                       <img
                         src={displayImage}
-                        alt={displayTitle}
+                        alt={prettyTitle(displayTitle)}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>
 
                     <div className="p-4">
                       <h3 className="font-serif text-lg text-foreground mb-3 group-hover:text-accent transition-colors">
-                        {displayTitle}
+                        {prettyTitle(displayTitle)}
                       </h3>
 
                       <div className="flex flex-col gap-2 text-sm text-muted-foreground">

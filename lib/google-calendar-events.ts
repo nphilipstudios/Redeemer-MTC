@@ -96,6 +96,16 @@ export function prettyLocation(location?: string) {
   return location.toLowerCase().includes("redeemer") ? "Redeemer MTC" : location
 }
 
+/**
+ * ✅ Title display helper (does NOT affect matching)
+ * Shows church wording on the website while keeping raw calendar titles
+ * for logic like image lookup / service matching.
+ */
+export function prettyTitle(title?: string) {
+  if (!title) return ""
+  return title.replace(/holy\s+communion/gi, "Holy Qurbana")
+}
+
 // ------------------------
 // Time helpers
 // ------------------------

@@ -7,6 +7,7 @@ import {
   getUpcomingServices,
   formatEventDate,
   formatEventTime,
+  prettyTitle,
   type CalendarEvent,
 } from "@/lib/google-calendar-events"
 import { services as allServices } from "@/lib/events-data"
@@ -121,7 +122,7 @@ export function ServiceTeasers() {
                     </div>
 
                     <h3 className="font-serif text-lg text-foreground mb-4 mt-8 group-hover:text-accent transition-colors">
-                      {displayTitle}
+                      {prettyTitle(displayTitle)}
                     </h3>
 
                     <div className="flex flex-col gap-2 text-sm text-muted-foreground">
