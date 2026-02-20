@@ -72,10 +72,18 @@ function norm(s?: string) {
  */
 export function isServiceEvent(event: CalendarEvent) {
   const d = norm(event.description)
+  // NOTE: Service matching is DESCRIPTION-based.
+  // Add the corresponding keywords into the Google Calendar event DESCRIPTION.
   return (
+    // Holy Qurbana / Holy Communion
+    d.includes("holy qurbana") ||
+    d.includes("qurbana") ||
     d.includes("holy communion") ||
+
+    // ACTS / Praise & Worship
     d.includes("acts worship") ||
-    d.includes("acts") ||
+    // keep a shorthand match, but avoid accidental matches like "acts" in other words
+    /\bacts\b/.test(d) ||
     (d.includes("praise") && d.includes("worship"))
   )
 }

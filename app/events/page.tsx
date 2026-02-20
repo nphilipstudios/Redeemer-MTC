@@ -41,8 +41,26 @@ function getDomain(url: string) {
   }
 }
 
+
 function norm(s?: string) {
   return (s ?? "").toLowerCase()
+}
+
+function toAnchorToken(input: string) {
+  // Keep it URL-fragment + HTML-id friendly (no percent-encoding mismatch)
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/['’]/g, "")
+    .replace(/[^a-z0-9_-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+}
+
+function eventAnchorId(event: CalendarEvent) {
+  // Must match what EventsTeaser links to: /events#event-<token>
+  const base = event.id || event.title
+  return `event-${toAnchorToken(base)}`
 }
 
 function getRecurringKey(e: CalendarEvent) {
@@ -129,8 +147,9 @@ export default function EventsPage() {
 
                   return (
                     <div
+                      id={eventAnchorId(event)}
                       key={event.id}
-                      className="bg-card rounded-xl border border-border p-5 hover:shadow-lg transition-all relative min-w-0"
+                      className="bg-card rounded-xl border border-border p-5 hover:shadow-lg transition-all relative min-w-0 scroll-mt-32"
                     >
                       {/* Date + Group */}
                       <div className="absolute top-3 left-3 flex items-center gap-2">
@@ -202,8 +221,9 @@ export default function EventsPage() {
 
                       return (
                         <div
+                          id={eventAnchorId(event)}
                           key={`${event.id}-recurring`}
-                          className="bg-card rounded-xl border border-border p-5 hover:shadow-lg transition-all relative min-w-0"
+                          className="bg-card rounded-xl border border-border p-5 hover:shadow-lg transition-all relative min-w-0 scroll-mt-32"
                         >
                           {/* Recurring badge + Group */}
                           <div className="absolute top-3 left-3 flex items-center gap-2">

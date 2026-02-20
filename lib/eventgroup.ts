@@ -32,12 +32,14 @@ export function getEventGroup(eventOrText: CalendarEvent | string): EventGroup {
 
   // Sunday Service / Worship / Communion
   if (
-    t.includes("sunday service") ||
+    t.includes("holy qurbana") ||
+    t.includes("qurbana") ||
     t.includes("holy communion") ||
     t.includes("communion") ||
     (t.includes("praise") && t.includes("worship")) ||
     (t.includes("acts") && t.includes("worship")) ||
-    (t.includes("acts") && t.includes("service"))
+    (t.includes("acts") && t.includes("service")) ||
+    t.includes("sunday service")
   ) {
     return { name: "Sunday Service", color: "bg-accent text-white" }
   }

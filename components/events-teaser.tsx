@@ -108,6 +108,16 @@ function getDotColorClass(group: string) {
   }
 }
 
+function eventAnchorId(e: CalendarEvent) {
+  const base = `${e.id || e.title || "event"}-${(e.start || "").slice(0, 10)}`
+  const slug = base
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")
+
+  return `event-${slug || "event"}`
+}
+
 // ---------- UI pieces ----------
 function EventChip({ event }: { event: CalendarEvent }) {
   const startDate = safeDate(event.start)
@@ -128,13 +138,16 @@ function EventChip({ event }: { event: CalendarEvent }) {
     : "bg-card hover:bg-secondary/60 border-border"
 
   return (
-    <div
+    <Link
+      href={`/events#${eventAnchorId(event)}`}
       className={[
         "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors",
         containerTone,
         todayRing ? "ring-2 ring-accent/50" : "",
+        "cursor-pointer",
       ].join(" ")}
       title={event.location ? `${event.title} • ${event.location}` : event.title}
+      aria-label={`View event: ${event.title}`}
     >
       {/* dot (color by event type) */}
       <span className={["w-2 h-2 rounded-full", dotColor, isPast ? "opacity-40" : ""].join(" ")} />
@@ -164,7 +177,7 @@ function EventChip({ event }: { event: CalendarEvent }) {
           <span className="truncate max-w-[12rem]">{event.location}</span>
         </span>
       ) : null}
-    </div>
+    </Link>
   )
 }
 
