@@ -316,11 +316,9 @@ export default function CalendarPage() {
                             : "border-lime-500 bg-lime-500/10"
                         }`}
                       >
-                        {event.recurring ? (
-                          <span className="text-xs uppercase tracking-wider font-medium">Recurring</span>
-                        ) : event.category !== "Other" ? (
-                          <span className="text-xs uppercase tracking-wider font-medium">{event.category}</span>
-                        ) : null}
+                        <span className="text-xs uppercase tracking-wider font-medium">
+                          {event.recurring ? "Recurring" : event.category}
+                        </span>
 
                         {(() => {
                           const url = extractFirstUrl(event.description)
