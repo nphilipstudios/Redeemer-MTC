@@ -8,6 +8,8 @@ import {
   type CalendarEvent,
 } from "@/lib/google-calendar-events"
 
+import { getEventGroup } from "@/lib/eventgroup"
+
 // ---------- date helpers ----------
 function startOfWeek(date: Date) {
   const d = new Date(date)
@@ -73,40 +75,6 @@ function isRecurringLike(e: CalendarEvent) {
   return text.includes("bible study") || text.includes("prayer call")
 }
 
-function getEventGroupKey(e: CalendarEvent) {
-  const text = `${e.title ?? ""} ${e.description ?? ""}`.toLowerCase()
-
-  // NOTE: order matters ("women" contains "men"), so check women's first with word boundaries
-  if (/\byouth\b/.test(text)) return "Youth"
-  if (/\bwomen\b|\bwomen\s*'?s\b|\bwoman\b/.test(text)) return "Women's"
-  if (/\bmen\b|\bmen\s*'?s\b|\bman\b/.test(text)) return "Men's"
-  if (/\bbible\s*study\b|\bprayer\s*call\b/.test(text)) return "Recurring"
-  if (/\bmissions\b|\bfeed\s+my\s+starving\s+children\b|\bfather'?s\s+cupboard\b/.test(text)) return "Missions"
-  if (/\bmusic\b|\bchoir\b|\bworship\s+team\b|\bsound\b|\bmedia\b/.test(text)) return "Music"
-  if (/\bprayer\s+meeting\b/.test(text)) return "Prayer Meeting"
-  return "Other"
-}
-
-function getDotColorClass(group: string) {
-  switch (group) {
-    case "Youth":
-      return "bg-yellow-400"
-    case "Men's":
-      return "bg-blue-500"
-    case "Women's":
-      return "bg-purple-500"
-    case "Recurring":
-      return "bg-orange-500"
-    case "Missions":
-      return "bg-green-500"
-    case "Music":
-      return "bg-red-500"
-    case "Prayer Meeting":
-      return "bg-blue-900"
-    default:
-      return "bg-lime-500"
-  }
-}
 
 function eventAnchorId(e: CalendarEvent) {
   const base = `${e.id || e.title || "event"}-${(e.start || "").slice(0, 10)}`
@@ -129,8 +97,12 @@ function EventChip({ event }: { event: CalendarEvent }) {
   // ✅ Only "past" AFTER the event has ENDED
   const isPast = endDate.getTime() < now.getTime()
   const todayRing = isSameDay(startDate, now)
-  const group = getEventGroupKey(event)
-  const dotColor = getDotColorClass(group)
+
+  const groupInfo = (getEventGroup as any)(event)
+  const dotColor =
+    (typeof groupInfo?.color === "string"
+      ? groupInfo.color.split(" ").find((c: string) => c.startsWith("bg-"))
+      : null) || "bg-accent"
 
   const strike = isPast ? "line-through opacity-70" : ""
   const containerTone = isPast
@@ -150,7 +122,11 @@ function EventChip({ event }: { event: CalendarEvent }) {
       aria-label={`View event: ${event.title}`}
     >
       {/* dot (color by event type) */}
-      <span className={["w-2 h-2 rounded-full", dotColor, isPast ? "opacity-40" : ""].join(" ")} />
+      <span
+        className={["w-2 h-2 rounded-full", dotColor, isPast ? "opacity-40" : ""].join(
+          " "
+        )}
+      />
 
       {/* strike through DATE + TIME + TITLE */}
       <span className={`text-accent font-semibold ${strike}`}>
