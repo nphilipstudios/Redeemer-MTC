@@ -9,7 +9,8 @@ const _dmSans = DM_Sans({ subsets: ["latin"] })
 const _playfair = Playfair_Display({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Redeemer MTC | Lighted to Lighten",
+  title: "Redeemer MTC",
+  metadataBase: new URL("https://redeemer-mtc.vercel.app"),
   description:
     "A welcoming community of faith in Christ - Worship, Mission, Outreach, Fellowship",
   icons: {
@@ -18,7 +19,8 @@ export const metadata: Metadata = {
     apple: "/yt cross.png",
   },
   openGraph: {
-    title: "Redeemer MTC | Lighted to Lighten",
+    title: "Redeemer MTC",
+    siteName: "Redeemer MTC",
     description:
       "A welcoming community of faith in Christ - Worship, Mission, Outreach, Fellowship",
     type: "website",
@@ -33,7 +35,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Redeemer MTC | Lighted to Lighten",
+    title: "Redeemer MTC",
     description:
       "A welcoming community of faith in Christ - Worship, Mission, Outreach, Fellowship",
     images: ["/yt banner.png"],
