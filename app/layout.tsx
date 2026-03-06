@@ -10,11 +10,33 @@ const _playfair = Playfair_Display({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Redeemer MTC | Lighted to Lighten",
-  description: "A welcoming community of faith in Christ - Worship, Mission, Outreach, Fellowship",
+  description:
+    "A welcoming community of faith in Christ - Worship, Mission, Outreach, Fellowship",
   icons: {
     icon: "/yt cross.png",
-    shortcut: "yt cross.png",
-    apple: "yt cross.png",
+    shortcut: "/yt cross.png",
+    apple: "/yt cross.png",
+  },
+  openGraph: {
+    title: "Redeemer MTC | Lighted to Lighten",
+    description:
+      "A welcoming community of faith in Christ - Worship, Mission, Outreach, Fellowship",
+    type: "website",
+    images: [
+      {
+        url: "/yt banner.png",
+        width: 1200,
+        height: 630,
+        alt: "Redeemer MTC",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Redeemer MTC | Lighted to Lighten",
+    description:
+      "A welcoming community of faith in Christ - Worship, Mission, Outreach, Fellowship",
+    images: ["/yt banner.png"],
   },
 }
 
@@ -57,7 +79,10 @@ export default function RootLayout({
 */}
       </head>
 
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        {children}
+        <Analytics />
+      </body>
     </html>
   )
 }
