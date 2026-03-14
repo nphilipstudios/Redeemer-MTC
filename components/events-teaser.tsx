@@ -4,7 +4,6 @@ import Link from "next/link"
 import { ArrowRight, CalendarDays, MapPin } from "lucide-react"
 import {
   useGoogleCalendarEvents,
-  isServiceEvent,
   type CalendarEvent,
 } from "@/lib/google-calendar-events"
 
@@ -25,6 +24,12 @@ function endOfWeek(date: Date) {
   e.setDate(e.getDate() + 6)
   e.setHours(23, 59, 59, 999)
   return e
+}
+
+function addDays(date: Date, days: number) {
+  const d = new Date(date)
+  d.setDate(d.getDate() + days)
+  return d
 }
 
 function startOfMonth(date: Date) {
@@ -199,26 +204,28 @@ export function EventsTeaser() {
   const now = new Date()
   const weekStart = startOfWeek(now)
   const weekEnd = endOfWeek(now)
+  const nextSevenDaysStart = new Date(now)
+  const nextSevenDaysEnd = addDays(now, 7)
   const monthStart = startOfMonth(now)
   const monthEnd = endOfMonth(now)
 
-  // ✅ exclude services
-  const nonService = (events || []).filter((e) => !isServiceEvent(e))
+  // ✅ For teasers only, include services too
+  const teaserEvents = events || []
 
-  // ✅ THIS WEEK = future only (ignore bad dates)
-  const thisWeek = nonService
+  // ✅ NEXT 7 DAYS = rolling window from right now
+  const thisWeek = teaserEvents
     .filter((e) => {
       const s = safeDate(e.start)
-      return !!s && s.getTime() >= now.getTime()
+      return !!s && s.getTime() >= nextSevenDaysStart.getTime()
     })
     .filter((e) => {
       const s = safeDate(e.start)!
-      return inRange(s, weekStart, weekEnd)
+      return s.getTime() <= nextSevenDaysEnd.getTime()
     })
-    .sort((a, b) => (safeDate(a.start)!.getTime() - safeDate(b.start)!.getTime()))
+    .sort((a, b) => safeDate(a.start)!.getTime() - safeDate(b.start)!.getTime())
 
   // ✅ THIS MONTH = keep ALL events in the month (past + future)
-  const thisMonth = nonService
+  const thisMonth = teaserEvents
     .filter((e) => {
       const s = safeDate(e.start)
       return !!s && inRange(s, monthStart, monthEnd)
@@ -248,17 +255,17 @@ export function EventsTeaser() {
 
         <div className="grid lg:grid-cols-2 gap-6">
           <ChipSection
-            title="This Week"
-            subtitle={`${fmtDayShort(weekStart)} ${fmtMonthDay(
-              weekStart
-            )} – ${fmtDayShort(weekEnd)} ${fmtMonthDay(weekEnd)}`}
+            title="Next 7 Days"
+            subtitle={`${fmtDayShort(nextSevenDaysStart)} ${fmtMonthDay(
+              nextSevenDaysStart
+            )} – ${fmtDayShort(nextSevenDaysEnd)} ${fmtMonthDay(nextSevenDaysEnd)}`}
             events={isLoading || error ? [] : thisWeek}
             emptyText={
               isLoading
                 ? "Loading…"
                 : error
                 ? "Unable to load events."
-                : "No events scheduled for this week."
+                : "No events scheduled in the next 7 days."
             }
           />
 

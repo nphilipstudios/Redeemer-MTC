@@ -38,11 +38,16 @@ export default function AboutPage() {
       </h2>
     </div>
 
-<div className="space-y-6 text-muted-foreground text-lg leading-relaxed text-center">
-        {missionPoints.map((point, i) => (
-        <p key={i}>{point}</p>
-      ))}
+<div className="grid md:grid-cols-2 gap-6 text-left">
+  {missionPoints.map((point, i) => (
+    <div
+      key={i}
+      className="bg-card border border-border rounded-lg p-6 text-muted-foreground text-base leading-relaxed shadow-sm text-center flex items-center justify-center"
+    >
+      {point}
     </div>
+  ))}
+</div>
   </div>
 </section>
 
