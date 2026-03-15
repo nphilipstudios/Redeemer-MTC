@@ -224,13 +224,13 @@ export function EventsTeaser() {
     })
     .sort((a, b) => safeDate(a.start)!.getTime() - safeDate(b.start)!.getTime())
 
-  // ✅ THIS MONTH = keep ALL events in the month (past + future)
+  // ✅ THIS MONTH = upcoming only for the rest of the current month
   const thisMonth = teaserEvents
     .filter((e) => {
       const s = safeDate(e.start)
-      return !!s && inRange(s, monthStart, monthEnd)
+      return !!s && inRange(s, monthStart, monthEnd) && s.getTime() >= now.getTime()
     })
-    .sort((a, b) => (safeDate(a.start)!.getTime() - safeDate(b.start)!.getTime()))
+    .sort((a, b) => safeDate(a.start)!.getTime() - safeDate(b.start)!.getTime())
 
   return (
     <section className="py-16 lg:py-20 bg-secondary/30">
