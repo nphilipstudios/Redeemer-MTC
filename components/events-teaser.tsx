@@ -118,7 +118,7 @@ function EventChip({ event }: { event: CalendarEvent }) {
     <Link
       href={`/events#${eventAnchorId(event)}`}
       className={[
-        "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors",
+        "inline-flex max-w-full min-w-0 items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors",
         containerTone,
         todayRing ? "ring-2 ring-accent/50" : "",
         "cursor-pointer",
@@ -143,7 +143,7 @@ function EventChip({ event }: { event: CalendarEvent }) {
       </span>
 
       <span
-        className={`font-medium truncate max-w-[18rem] ${strike} ${
+        className={`font-medium truncate min-w-0 max-w-[18rem] ${strike} ${
           isPast ? "" : "text-foreground"
         }`}
       >
@@ -152,7 +152,7 @@ function EventChip({ event }: { event: CalendarEvent }) {
 
       {event.location ? (
         <span
-          className={`hidden md:inline-flex items-center gap-1 text-muted-foreground ${strike}`}
+          className={`hidden md:inline-flex min-w-0 items-center gap-1 text-muted-foreground ${strike}`}
         >
           <MapPin className="w-3.5 h-3.5" />
           <span className="truncate max-w-[12rem]">{event.location}</span>
