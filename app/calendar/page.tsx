@@ -254,7 +254,7 @@ export default function CalendarPage() {
                 {/* Legend */}
                 <div className="flex flex-wrap gap-4 mt-6 pt-4 border-t border-border text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-accent" /> Sunday Service
+                    <span className="w-3 h-3 rounded-full bg-accent" /> Worship Service
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="w-3 h-3 rounded-full bg-orange-500" /> Recurring
@@ -317,7 +317,11 @@ export default function CalendarPage() {
                         }`}
                       >
                         <span className="text-xs uppercase tracking-wider font-medium">
-                          {event.recurring ? "Recurring" : event.category}
+                          {event.recurring
+                            ? "Recurring"
+                            : event.category === "Sunday Service"
+                            ? "Worship Service"
+                            : event.category}
                         </span>
 
                         {(() => {
