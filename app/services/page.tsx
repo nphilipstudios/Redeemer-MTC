@@ -11,6 +11,7 @@ import {
   prettyLocation,
   formatEventDate,
   formatEventTime,
+  prettyTitle,
   type CalendarEvent,
 } from "@/lib/google-calendar-events"
 
@@ -89,7 +90,7 @@ export default function ServicesPage() {
                     <div className="relative h-36 overflow-hidden bg-secondary">
                       <Image
                         src={getServiceImage(service)}
-                        alt={service.title}
+                        alt={prettyTitle(service.title)}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />
@@ -98,7 +99,7 @@ export default function ServicesPage() {
                     <div className="p-4">
                       {/* ✅ Title EXACTLY from Google Calendar */}
                       <h3 className="font-serif text-lg text-foreground mb-3 group-hover:text-accent transition-colors">
-                        {service.title}
+                        {prettyTitle(service.title)}
                       </h3>
 
                       <div className="flex flex-col gap-2 text-sm text-muted-foreground">

@@ -8,6 +8,7 @@ import {
   formatEventDate,
   formatEventTime,
   prettyLocation,
+  prettyTitle,
   isSundaySchoolEvent,
   type CalendarEvent,
 } from "@/lib/google-calendar-events"
@@ -112,7 +113,7 @@ export function ServiceTeasers() {
 
                   {/* ✅ Title from Google Calendar EXACTLY */}
                   <h3 className="font-serif text-lg text-foreground mb-4 mt-8 group-hover:text-accent transition-colors">
-                    {service.title}
+                    {prettyTitle(service.title)}
                   </h3>
 
                   <div className="flex flex-col gap-2 text-sm text-muted-foreground">

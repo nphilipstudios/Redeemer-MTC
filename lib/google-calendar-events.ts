@@ -111,7 +111,12 @@ export function prettyLocation(location?: string) {
  */
 export function prettyTitle(title?: string) {
   if (!title) return ""
-  return title.replace(/holy\s+communion/gi, "Holy Qurbana")
+
+  return title
+    // Normalize any "Holy Communion" → "Holy Qurbana"
+    .replace(/holy\s+communion/gi, "Holy Qurbana")
+    // Normalize any inconsistent Qurbana casing/spelling
+    .replace(/holy\s+qurbana/gi, "Holy Qurbana")
 }
 
 // ------------------------

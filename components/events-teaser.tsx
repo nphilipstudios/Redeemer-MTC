@@ -4,6 +4,7 @@ import Link from "next/link"
 import { ArrowRight, CalendarDays, MapPin } from "lucide-react"
 import {
   useGoogleCalendarEvents,
+  prettyTitle,
   type CalendarEvent,
 } from "@/lib/google-calendar-events"
 
@@ -147,7 +148,7 @@ function EventChip({ event }: { event: CalendarEvent }) {
           isPast ? "" : "text-foreground"
         }`}
       >
-        {event.title}
+        {prettyTitle(event.title)}
       </span>
 
       {event.location ? (

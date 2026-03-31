@@ -9,6 +9,7 @@ import {
   type CalendarEvent,
   prettyLocation,
   formatEventTime,
+  prettyTitle,
 } from "@/lib/google-calendar-events"
 import { getEventGroup } from "@/lib/eventgroup"
 
@@ -328,7 +329,9 @@ export default function CalendarPage() {
                           const url = extractFirstUrl(event.description)
                           const cleanDescription = event.description?.replace(url ?? "", "").trim()
                           const titleNode = (
-                            <h4 className="font-serif text-lg text-foreground mt-1 break-words">{event.title}</h4>
+                            <h4 className="font-serif text-lg text-foreground mt-1 break-words">
+                              {prettyTitle(event.title)}
+                            </h4>
                           )
 
                           return url ? (
