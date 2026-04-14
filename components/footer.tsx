@@ -6,7 +6,7 @@ const footerLinks = {
   connect: [
     { label: "Contact", href: "/contact" },
     { label: "Prayer Request", href: "https://forms.gle/p25KxZx1LvQ5xkCbA" },
-    { label: "Give", href: "https://redeemermtc.churchtrac.com/" },
+    { label: "Give", href: "https://redeemermtc.churchtrac.com/give" },
     //{ label: "Rock of Redeemer", href: "#" },
 
   ],

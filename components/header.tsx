@@ -13,10 +13,10 @@ const navItems = [
   { label: "Calendar", href: "/calendar" },
   { label: "Ministries", href: "/ministries" },
   { label: "About", href: "/about" },
-  //{ label: "Rock of Redeemer", href: "#" },
+  { label: "Rock of Redeemer", href: "/rock-of-redeemer" },
   { label: "Contact", href: "/contact" },
 ]
-
+  
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
 

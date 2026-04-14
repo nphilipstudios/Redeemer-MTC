@@ -7,7 +7,7 @@ const quickLinks = [
   { label: "Prayer Requests", icon: Heart, href: "https://forms.gle/p25KxZx1LvQ5xkCbA" },
   { label: "Live Stream", icon: Video, href: "https://youtube.com/@redeemermtc/live" },
   { label: "Directions", icon: MapPin, href: "https://maps.app.goo.gl/dg88Q9TYsnqWdHEt6" },
-  { label: "Give", icon: DollarSign, href: "https://redeemermtc.churchtrac.com/" }
+  { label: "Give", icon: DollarSign, href: "https://redeemermtc.churchtrac.com/give" }
 ]
 
 export function QuickLinks() {
