@@ -80,7 +80,7 @@ export default function RockOfRedeemerPage() {
               </h2>
               <div className="space-y-5 text-muted-foreground text-base md:text-lg leading-relaxed text-center">
                 <p>
-                  As we continue to grow in faith and service, we seek financial support for these two  primary areas:
+                  As we continue to grow in faith and service, we seek financial support for these two primary areas:
                 </p>
 
                 <div className="space-y-4">
