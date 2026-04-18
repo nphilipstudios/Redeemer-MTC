@@ -106,15 +106,68 @@ export default function RockOfRedeemerPage() {
             </div>
           </div>
         </div>
-        <div className="mt-16 text-center">
-          <a
-            href="https://redeemermtc.churchtrac.com/give"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-accent text-white px-8 py-4 rounded-xl font-semibold text-lg hover:opacity-90 transition"
-          >
-            Give Now
-          </a>
+        {/* Ways to Give */}
+        <div className="max-w-4xl mx-auto px-6 lg:px-8 mt-16">
+          <div className="bg-card border border-border rounded-2xl p-8 md:p-10 shadow-sm">
+            <h3 className="font-serif text-xl md:text-2xl text-foreground mb-6 text-center">
+              Ways to Give
+            </h3>
+
+            <div className="text-muted-foreground text-base md:text-lg leading-relaxed">
+              <p className="mb-4 font-medium text-foreground">Different Ways to Donate:</p>
+              <ul className="list-disc pl-6 space-y-1 mb-6">
+                <li>Personal Check</li>
+                <li>Zelle</li>
+                <li>Credit Card</li>
+                <li>Appreciated Stock Transfer</li>
+                <li>Wire Transfer</li>
+              </ul>
+
+              <div className="space-y-5">
+                <div>
+                  <p className="font-semibold text-foreground">Personal Check</p>
+                  <p>
+                    Make checks payable to "Redeemer MTC" and include "Church purchase fund" in the memo field.
+                  </p>
+                </div>
+
+                <div>
+                  <p className="font-semibold text-foreground">Zelle</p>
+                  <p>Send donations to treasurer@redeemermtc.org</p>
+                </div>
+
+                <div>
+                  <p className="font-semibold text-foreground">Credit Card</p>
+                  <p>
+                    <a
+                      href="https://redeemermtc.churchtrac.com/give"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-accent underline"
+                    >
+                      Donate via Credit Card (Go to Giving Page)
+                    </a>
+                  </p>
+                </div>
+
+                <div>
+                  <p className="font-semibold text-foreground">Stock Transfer</p>
+                  <p>
+                    Donating long‑term*, appreciated, and unhedged stocks is an excellent way to maximize your charitable giving. Because Redeemer MTC is a tax‑exempt nonprofit, we can sell donated stocks without incurring taxes on embedded gains.
+                  </p>
+                  <p>
+                    You receive a charitable deduction based on the fair market value of the donated securities.
+                  </p>
+                  <p>For all stock transfers, please contact our trustees.</p>
+                </div>
+
+                <div>
+                  <p className="font-semibold text-foreground">Wire Transfer</p>
+                  <p>For all wire transfers, please contact our trustees.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
