@@ -145,7 +145,7 @@ export default function RockOfRedeemerPage() {
                       rel="noopener noreferrer"
                       className="text-accent underline"
                     >
-                      Donate via Credit Card (Go to Giving Page)
+                      Donate via Credit Card
                     </a>
                   </p>
                 </div>
