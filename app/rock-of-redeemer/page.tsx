@@ -29,81 +29,94 @@ export default function RockOfRedeemerPage() {
             </h1>
           </div>
 
-          {/* Main Content */}
-          <div className="space-y-10">
-            <div className="bg-card border border-border rounded-2xl p-8 md:p-10 shadow-sm">
-              <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-5 text-center">
-                OUR MISSION:
+          {/* Campaign Goal */}
+          <div className="max-w-3xl mx-auto mb-16">
+            <div className="bg-card border border-border rounded-2xl p-8 md:p-10 shadow-sm text-center">
+              <p className="text-sm uppercase tracking-widest text-accent mb-3">
+                Raised So Far
+              </p>
+
+              <h2 className="font-serif text-5xl md:text-6xl text-foreground mb-3">
+                $620,000
               </h2>
-              <div className="space-y-4 text-muted-foreground text-base md:text-lg leading-relaxed text-center">
-                <p>
-                  To be the repository of the divine doctrines revealed by Jesus Christ and proclaimed by His Apostles.
-                </p>
-                <p>
-                  To maintain these doctrines in their purity.
-                </p>
-                <p>
-                  To promote the spiritual life through the administration of sacraments and by the ministry of the WORD.
-                </p>
-                <p>
-                  To make disciples of all nations by the proclamation of the Gospel to all the world and through the administration of Holy Baptism in the name of the True God.
-                </p>
+
+              <p className="text-muted-foreground mb-8">
+                Toward our <span className="font-semibold text-foreground">$3,000,000</span> campaign goal
+              </p>
+
+              {/* Progress Graph */}
+              <div className="w-full h-7 rounded-full bg-secondary overflow-hidden mb-5">
+                <div className="h-full w-[21%] bg-accent rounded-full transition-all duration-700" />
               </div>
-            </div>
 
-            <div className="bg-card border border-border rounded-2xl p-8 md:p-10 shadow-sm">
-              <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-5 text-center">
-                WHO WE ARE:
-              </h2>
-              <div className="space-y-5 text-muted-foreground text-base md:text-lg leading-relaxed text-center">
-                <p>
-                  We are a parish of the Diocese of North America of the Mar Thoma Church, located in Northern NJ. The name “Mar Thoma” translates to Saint Thomas, one of the twelve disciples of Jesus Christ, who came to the Malabar Coast of India in A.D. 52.
-                </p>
-                <p>
-                  As a community of believers, we share the mission of proclaiming the Gospel through Worship, Missions, Outreach, and Fellowship. We are a prayerful community, deeply rooted in worship, recognizing prayer as the visible source of power for our faith in action. We are also faithful Stewards, entrusted with the responsibility of caring for God’s creation.
-                </p>
-                <p>
-                  We uphold the Holy Bible as inspired by God, inerrant, sufficient, and the final authority over our beliefs and actions.
-                </p>
-                <p>
-                  Our congregation was inaugurated on October 1st, 2017, in a blessed Holy Communion service led by Rt. Rev. Dr. Isaac Mar Philoxenos, Diocesan Bishop, and Rev. Denny Philip, Diocesan Secretary.
-                </p>
-                <p>
-                  The congregation started with 43 families/individuals and is currently pastored by Rev. Jess M. George, worshiping at Christ Community Church in Waldwick, NJ.
-                </p>
+              <div className="flex justify-between text-sm text-muted-foreground mb-10">
+                <span>$0</span>
+                <span>$3,000,000 Goal</span>
               </div>
-            </div>
 
-            <div className="bg-card border border-border rounded-2xl p-8 md:p-10 shadow-sm">
-              <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-5 text-center">
-                WHY WE ARE RAISING FUNDS:
-              </h2>
-              <div className="space-y-5 text-muted-foreground text-base md:text-lg leading-relaxed text-center">
-                <p>
-                  As we continue to grow in faith and service, we seek financial support for these two primary areas:
+              {/* GPS Section */}
+              <div className="bg-background/70 border border-border rounded-2xl p-8 max-w-3xl mx-auto">
+                <p className="text-accent font-medium mb-6 text-center">
+                  Your G.P.S to guide the way:
                 </p>
 
-                <div className="space-y-4">
-                  <div className="border border-border rounded-xl p-5 bg-background/60">
-                    <p className="font-semibold text-foreground mb-2">
-                      1. Purchasing a Church Building
-                    </p>
-                    <p>
-                      Securing a permanent place of worship to serve as the foundation for our congregation’s spiritual growth and community outreach.
-                    </p>
-                  </div>
+                <div className="space-y-4 text-left text-muted-foreground">
+                  <p>
+                    <span className="font-semibold text-foreground">GIVE:</span> Every contribution, big or small, will make a difference.
+                  </p>
 
-                  <div className="border border-border rounded-xl p-5 bg-background/60">
-                    <p className="font-semibold text-foreground mb-2">
-                      2. Capital Improvements
-                    </p>
-                    <p>
-                      Ensuring our place of worship remains a beacon of faith by funding building maintenance, facility upgrades, and future expansion.
-                    </p>
-                  </div>
+                  <p>
+                    <span className="font-semibold text-foreground">PRAY:</span> Keep our campaign, leadership, and church family in your prayers.
+                  </p>
+
+                  <p>
+                    <span className="font-semibold text-foreground">SPREAD the word:</span> Share our campaign with your family, friends, and community so others can join us in this mission.
+                  </p>
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="space-y-10">
+
+            <div className="bg-card border border-border rounded-2xl p-8 md:p-10 shadow-sm">
+  <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-5 text-center">
+    WHY WE ARE RAISING FUNDS
+  </h2>
+
+  <div className="space-y-6 text-muted-foreground text-base md:text-lg leading-relaxed text-center">
+    <p>
+      Our goal is to raise <span className="font-semibold text-foreground">$3,000,000</span>, which will help us complete the purchase of our facility and ensure Redeemer has a lasting home for generations to come.
+    </p>
+
+    <p>
+      This is not just a building campaign — this is a mission to establish a house of worship where faith can grow, families can gather, and lives can be transformed through the love of Christ.
+    </p>
+
+    {/* Fundraising Areas */}
+    <div className="space-y-4 text-left max-w-3xl mx-auto">
+      <div className="border border-border rounded-xl p-5 bg-background/60">
+        <p className="font-semibold text-foreground mb-2">
+          1. Purchasing a Church Building
+        </p>
+        <p>
+          Securing a permanent place of worship to serve as the foundation for our congregation’s spiritual growth and community outreach.
+        </p>
+      </div>
+
+      <div className="border border-border rounded-xl p-5 bg-background/60">
+        <p className="font-semibold text-foreground mb-2">
+          2. Capital Improvements
+        </p>
+        <p>
+          Ensuring our place of worship remains a beacon of faith by funding building maintenance, facility upgrades, and future expansion.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
           </div>
         </div>
         {/* Ways to Give */}
@@ -158,12 +171,12 @@ export default function RockOfRedeemerPage() {
                   <p>
                     You receive a charitable deduction based on the fair market value of the donated securities.
                   </p>
-                  <p>For all stock transfers, please contact our trustees.</p>
+                  <p>For all stock transfers, please contact our treasurer or trustees.</p>
                 </div>
 
                 <div>
                   <p className="font-semibold text-foreground">Wire Transfer</p>
-                  <p>For all wire transfers, please contact our trustees.</p>
+                  <p>For all wire transfers, please contact our treasurer or trustees.</p>
                 </div>
               </div>
             </div>
