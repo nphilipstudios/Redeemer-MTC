@@ -33,7 +33,7 @@ export default function RockOfRedeemerPage() {
           <div className="max-w-3xl mx-auto mb-16">
             <div className="bg-card border border-border rounded-2xl p-8 md:p-10 shadow-sm text-center">
               <p className="text-sm uppercase tracking-widest text-accent mb-3">
-                Raised So Far
+                Committed So Far
               </p>
 
               <h2 className="font-serif text-5xl md:text-6xl text-foreground mb-3">
@@ -41,7 +41,7 @@ export default function RockOfRedeemerPage() {
               </h2>
 
               <p className="text-muted-foreground mb-8">
-                Toward our <span className="font-semibold text-foreground">$3,000,000</span> campaign goal
+                Committed toward our <span className="font-semibold text-foreground">$3,000,000</span> campaign goal
               </p>
 
               {/* Progress Graph */}
@@ -171,7 +171,16 @@ export default function RockOfRedeemerPage() {
                   <p>
                     You receive a charitable deduction based on the fair market value of the donated securities.
                   </p>
-                  <p>For all stock transfers, please contact our treasurer or trustees.</p>
+                  <p>
+                    For all stock transfers, please contact our treasurer or trustees at{" "}
+                    <a
+                      href="mailto:treasurer@redeemermtc.org"
+                      className="text-accent underline"
+                    >
+                      treasurer@redeemermtc.org
+                    </a>
+                    .
+                  </p>
                 </div>
 
                 <div>
