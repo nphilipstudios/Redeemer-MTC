@@ -153,32 +153,15 @@ pnpm start
 
 ## Deployment
 
-### Current: Vercel
-The site is currently deployed on Vercel. Vercel-specific dependencies include:
-- `@vercel/analytics` — used in `app/layout.tsx`
-- `metadataBase` URL is hardcoded to `https://redeemer-mtc.vercel.app` in `app/layout.tsx`
-
 ### Target: Railway
-See Railway Migration Notes below.
+The site is deployed on Railway using Docker (standalone Next.js build).
 
----
+- **Build:** `Dockerfile` — multi-stage build using `node:20-alpine`; produces a minimal `output: standalone` image
+- **Config:** `railway.toml` — points Railway at the Dockerfile, sets healthcheck on `/`, restart policy on failure
+- **Start:** `node server.js` (Next.js standalone server entry point)
+- **Port:** `3000`
 
-## Railway Migration Notes
-
-The following Vercel-specific items need to be addressed before deploying to Railway:
-
-1. **`@vercel/analytics`** — Must be replaced or removed. Options:
-   - Remove entirely (Google Analytics via `<Script>` tags is already in place)
-   - Replace with [Plausible](https://plausible.io) (privacy-friendly, self-hostable)
-   - Replace with [PostHog](https://posthog.com) (open source, self-hostable)
-
-2. **`metadataBase`** — Hardcoded to `https://redeemer-mtc.vercel.app` in `app/layout.tsx`. Should be updated to use `process.env.NEXT_PUBLIC_SITE_URL`.
-
-3. **`output: 'standalone'`** — Railway runs Node.js servers in containers. Adding `output: 'standalone'` to `next.config.mjs` creates a self-contained server bundle ideal for containerized deployments.
-
-4. **`images.unoptimized: true`** — Currently set, which disables Next.js built-in image optimization. On Railway, Next.js image optimization works natively so this can be removed to re-enable optimized images.
-
-5. **Start command** — Configure the Railway service to run `pnpm start` (which executes `next start`).
+Set all required environment variables (see [Environment Variables](#environment-variables)) in the Railway service dashboard before deploying.
 
 ---
 
