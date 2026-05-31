@@ -182,6 +182,17 @@ The following Vercel-specific items need to be addressed before deploying to Rai
 
 ---
 
+## TODO
+
+- [ ] **Determine the Google project used for Google Calendar** — Nick to confirm which GCP project owns the API key and calendar
+- [ ] **Rotate the Google Calendar API key** — The previous key was hardcoded in source and committed to git; must be revoked and replaced
+- [ ] **Create a Railway staging instance** — Deploy from the `staging` branch; used for testing before production
+- [ ] **Create a Railway production instance** — Deploy from `main`; serves live traffic
+- [ ] **Deploy the site onto Railway staging** — First test deployment to validate Railway config, env vars, and build
+- [ ] **Require PR approval to merge to `main`** — Dennis Thomas must approve all pull requests before changes reach production (configure via GitHub branch protection rules)
+
+---
+
 ## Known Issues / Tech Debt
 
 - `typescript: { ignoreBuildErrors: true }` is set in `next.config.mjs` — TypeScript build errors are silently suppressed
