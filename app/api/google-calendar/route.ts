@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server"
 
-const GOOGLE_CALENDAR_API_KEY = "AIzaSyAVp8bZc4wX-GGwqNmxE_pIDZLGpEn5j9M"
-const CALENDAR_ID =
-  process.env.GOOGLE_CALENDAR_ID ||
-  "0t69sj6mamgelh24g2uvmtu6mucm69gj@import.calendar.google.com"
+const GOOGLE_CALENDAR_API_KEY = process.env.GOOGLE_CALENDAR_API_KEY || ""
+const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || ""
 
 function isDateOnly(v: string) {
   return /^\d{4}-\d{2}-\d{2}$/.test(v)

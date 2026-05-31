@@ -3,14 +3,15 @@ import type { Metadata } from "next"
 import { DM_Sans, Playfair_Display } from "next/font/google"
 import Script from "next/script"
 import "./globals.css"
-import { Analytics } from "@vercel/analytics/next"
 
 const _dmSans = DM_Sans({ subsets: ["latin"] })
 const _playfair = Playfair_Display({ subsets: ["latin"] })
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://redeemermtc.org"
+
 export const metadata: Metadata = {
   title: "Redeemer MTC",
-  metadataBase: new URL("https://redeemer-mtc.vercel.app"),
+  metadataBase: new URL(siteUrl),
   description:
     "A welcoming community of faith in Christ - Worship, Mission, Outreach, Fellowship",
   icons: {
@@ -50,40 +51,26 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Google Analytics */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-TEZWRD4TZV"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-TEZWRD4TZV');
-          `}
-        </Script>
-
-        {/* Userback */}
-        {/*
-  <Script id="userback-widget" strategy="afterInteractive">
-    {`
-      window.Userback = window.Userback || {};
-      Userback.access_token = "A-SY3S1mMdUoUAIJHvf8qGHWovJ";
-      (function(d) {
-        var s = d.createElement('script');
-        s.async = true;
-        s.src = 'https://static.userback.io/widget/v1.js';
-        (d.head || d.body).appendChild(s);
-      })(document);
-    `}
-  </Script>
-*/}
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
+              `}
+            </Script>
+          </>
+        )}
       </head>
 
       <body className="font-sans antialiased">
         {children}
-        <Analytics />
       </body>
     </html>
   )
