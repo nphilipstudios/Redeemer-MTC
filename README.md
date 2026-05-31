@@ -195,7 +195,4 @@ The following Vercel-specific items need to be addressed before deploying to Rai
 
 ## Known Issues / Tech Debt
 
-- `typescript: { ignoreBuildErrors: true }` is set in `next.config.mjs` — TypeScript build errors are silently suppressed
-- Two event utility files exist (`lib/google-calendar-events.ts` and `lib/churchtrac-events.ts`) with overlapping logic; `churchtrac-events.ts` is a legacy wrapper that can likely be consolidated
-- Both `pnpm-lock.yaml` and `package-lock.json` are present — the project should standardize on one package manager (pnpm)
-- `app/globals.css` and `styles/globals.css` both exist — only `app/globals.css` is imported; `styles/globals.css` appears to be a duplicate
+No outstanding tech debt items.
