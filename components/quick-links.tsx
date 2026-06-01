@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Heart, MapPin, Video } from "lucide-react"
-import { CreditCard, DollarSign } from "lucide-react"
+import { DollarSign } from "lucide-react"
 
 
 const quickLinks = [

@@ -11,22 +11,6 @@ import {
 import { getEventGroup } from "@/lib/eventgroup"
 
 // ---------- date helpers ----------
-function startOfWeek(date: Date) {
-  const d = new Date(date)
-  d.setHours(0, 0, 0, 0)
-  const day = d.getDay() // Sun=0
-  d.setDate(d.getDate() - day)
-  return d
-}
-
-function endOfWeek(date: Date) {
-  const s = startOfWeek(date)
-  const e = new Date(s)
-  e.setDate(e.getDate() + 6)
-  e.setHours(23, 59, 59, 999)
-  return e
-}
-
 function addDays(date: Date, days: number) {
   const d = new Date(date)
   d.setDate(d.getDate() + days)
@@ -76,12 +60,6 @@ function safeDate(value?: string) {
   return isNaN(d.getTime()) ? null : d
 }
 
-function isRecurringLike(e: CalendarEvent) {
-  const text = `${e.title ?? ""} ${e.description ?? ""}`.toLowerCase()
-  return text.includes("bible study") || text.includes("prayer call")
-}
-
-
 function eventAnchorId(e: CalendarEvent) {
   const base = `${e.id || e.title || "event"}-${(e.start || "").slice(0, 10)}`
   const slug = base
@@ -104,7 +82,7 @@ function EventChip({ event }: { event: CalendarEvent }) {
   const isPast = endDate.getTime() < now.getTime()
   const todayRing = isSameDay(startDate, now)
 
-  const groupInfo = (getEventGroup as any)(event)
+  const groupInfo = getEventGroup(event)
   const dotColor =
     (typeof groupInfo?.color === "string"
       ? groupInfo.color.split(" ").find((c: string) => c.startsWith("bg-"))
@@ -203,8 +181,6 @@ export function EventsTeaser() {
   const { events, isLoading, error } = useGoogleCalendarEvents()
 
   const now = new Date()
-  const weekStart = startOfWeek(now)
-  const weekEnd = endOfWeek(now)
   const nextSevenDaysStart = new Date(now)
   const nextSevenDaysEnd = addDays(now, 7)
   const monthStart = startOfMonth(now)

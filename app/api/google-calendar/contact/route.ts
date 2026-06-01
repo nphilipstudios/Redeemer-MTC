@@ -5,9 +5,32 @@ import nodemailer from "nodemailer"
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
 const RATE_LIMIT = 5
 const RATE_WINDOW_MS = 10 * 60 * 1000
+const MAX_RATE_LIMIT_KEYS = 10_000
+
+function getClientIp(req: NextRequest): string {
+  const forwardedFor = req.headers.get("x-forwarded-for")
+  const forwardedIp = forwardedFor?.split(",").at(0)?.trim()
+
+  return (
+    req.headers.get("cf-connecting-ip")?.trim() ||
+    req.headers.get("x-real-ip")?.trim() ||
+    forwardedIp ||
+    "unknown"
+  )
+}
+
+function pruneRateLimitMap(now: number) {
+  if (rateLimitMap.size < MAX_RATE_LIMIT_KEYS) return
+
+  for (const [ip, entry] of rateLimitMap) {
+    if (now > entry.resetAt) rateLimitMap.delete(ip)
+  }
+}
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now()
+  pruneRateLimitMap(now)
+
   const entry = rateLimitMap.get(ip)
 
   if (!entry || now > entry.resetAt) {
@@ -35,9 +58,16 @@ function sanitizeText(value: unknown, maxLength: number): string {
   return value.trim().slice(0, maxLength)
 }
 
+function sanitizeHeaderValue(value: string): string {
+  return value.replace(/[\r\n\x00-\x1F\x7F]+/g, " ").trim()
+}
+
+function getEnv(name: string): string {
+  return process.env[name]?.trim() || ""
+}
+
 export async function POST(req: NextRequest) {
-  const ip =
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
+  const ip = getClientIp(req)
 
   if (!checkRateLimit(ip)) {
     return NextResponse.json(
@@ -69,13 +99,14 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const EMAIL_USER = process.env.EMAIL_USER
-    const EMAIL_PASS = process.env.EMAIL_PASS
-    const EMAIL_TO = process.env.EMAIL_TO || EMAIL_USER
+    const EMAIL_USER = getEnv("EMAIL_USER")
+    const EMAIL_PASS = getEnv("EMAIL_PASS")
+    const EMAIL_TO = getEnv("EMAIL_TO") || EMAIL_USER
 
     if (!EMAIL_USER || !EMAIL_PASS) {
+      console.error("Contact email service is missing required configuration")
       return NextResponse.json(
-        { error: "Server email not configured (missing EMAIL_USER/EMAIL_PASS)." },
+        { error: "Email service is currently unavailable." },
         { status: 500 }
       )
     }
@@ -91,6 +122,8 @@ export async function POST(req: NextRequest) {
     })
 
     const fullName = `${firstName} ${lastName}`.trim() || "Website Visitor"
+    const headerSafeFullName = sanitizeHeaderValue(fullName)
+    const headerSafeEmail = sanitizeHeaderValue(email)
 
     const safeFullName = escapeHtml(fullName)
     const safeEmail = escapeHtml(email)
@@ -98,9 +131,9 @@ export async function POST(req: NextRequest) {
 
     await transporter.sendMail({
       from: `Redeemer MTC Website <${EMAIL_USER}>`,
-      replyTo: email,
+      replyTo: headerSafeEmail,
       to: EMAIL_TO,
-      subject: `New Contact Form Message from ${fullName}`,
+      subject: `New Contact Form Message from ${headerSafeFullName}`,
       text: `Name: ${fullName}\nEmail: ${email}\n\nMessage:\n${message}`,
       html: `
         <h2>New Contact Form Message</h2>

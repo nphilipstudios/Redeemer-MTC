@@ -327,7 +327,6 @@ export default function CalendarPage() {
 
                         {(() => {
                           const url = extractFirstUrl(event.description)
-                          const cleanDescription = event.description?.replace(url ?? "", "").trim()
                           const titleNode = (
                             <h4 className="font-serif text-lg text-foreground mt-1 break-words">
                               {prettyTitle(event.title)}

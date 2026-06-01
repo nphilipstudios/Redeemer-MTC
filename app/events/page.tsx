@@ -41,11 +41,6 @@ function getDomain(url: string) {
   }
 }
 
-
-function norm(s?: string) {
-  return (s ?? "").toLowerCase()
-}
-
 function toAnchorToken(input: string) {
   // Keep it URL-fragment + HTML-id friendly (no percent-encoding mismatch)
   return input

@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button"
-import { Play } from "lucide-react"
+import Image from "next/image"
 
 export function Hero() {
   return (
@@ -7,10 +6,13 @@ export function Hero() {
       
       {/* Background Image */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        <img
+        <Image
           src="/IMG_7432.JPG"
           alt="Redeemer MTC group photo"
-          className="w-full h-full object-cover object-center translate-y-20 filter blur-[0.5px]"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center translate-y-20 filter blur-[0.5px]"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/60 to-primary/40" />
       </div>

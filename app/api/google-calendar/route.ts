@@ -3,6 +3,21 @@ import { NextResponse } from "next/server"
 const GOOGLE_CALENDAR_API_KEY = process.env.GOOGLE_CALENDAR_API_KEY || ""
 const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || ""
 
+type GoogleCalendarEvent = {
+  id?: string
+  summary?: string
+  description?: string
+  location?: string
+  start?: {
+    date?: string
+    dateTime?: string
+  }
+  end?: {
+    date?: string
+    dateTime?: string
+  }
+}
+
 function isDateOnly(v: string) {
   return /^\d{4}-\d{2}-\d{2}$/.test(v)
 }
@@ -17,6 +32,10 @@ function normalizeEnd(raw: string) {
   if (!isDateOnly(raw)) return raw
   const exclusive = new Date(`${raw}T00:00:00`)
   return new Date(exclusive.getTime() - 1).toISOString()
+}
+
+function excerpt(value: string, maxLength = 500) {
+  return value.replace(/\s+/g, " ").slice(0, maxLength)
 }
 
 export async function GET() {
@@ -59,7 +78,7 @@ export async function GET() {
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error("Google Calendar API error:", response.status, errorText)
+      console.error("Google Calendar API error:", response.status, excerpt(errorText))
 
       return NextResponse.json(
         { error: "Failed to fetch calendar events", events: [] },
@@ -69,8 +88,10 @@ export async function GET() {
 
     const data = await response.json()
 
-    const formattedEvents = (data.items || [])
-      .map((event: any) => {
+    const items: GoogleCalendarEvent[] = Array.isArray(data.items) ? data.items : []
+
+    const formattedEvents = items
+      .map((event) => {
         const startRaw: string | undefined = event.start?.dateTime || event.start?.date
         const endRaw: string | undefined = event.end?.dateTime || event.end?.date
         if (!startRaw || !endRaw) return null

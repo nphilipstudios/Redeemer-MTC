@@ -1,13 +1,26 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { DM_Sans, Playfair_Display } from "next/font/google"
+import { headers } from "next/headers"
 import Script from "next/script"
 import "./globals.css"
 
-const _dmSans = DM_Sans({ subsets: ["latin"] })
-const _playfair = Playfair_Display({ subsets: ["latin"] })
+const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans" })
+const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" })
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://redeemermtc.org"
+const googleAnalyticsId = process.env.NEXT_PUBLIC_GA_ID?.trim()
+
+function googleAnalyticsScript(id: string) {
+  const safeId = JSON.stringify(id)
+
+  return `
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', ${safeId});
+  `
+}
 
 export const metadata: Metadata = {
   title: "Redeemer MTC",
@@ -43,33 +56,35 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined
+
   return (
     <html lang="en">
       <head>
-        {process.env.NEXT_PUBLIC_GA_ID && (
+        {googleAnalyticsId && (
           <>
             <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+              nonce={nonce}
+              src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(googleAnalyticsId)}`}
               strategy="afterInteractive"
             />
-            <Script id="google-analytics" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
-              `}
+            <Script
+              id="google-analytics"
+              nonce={nonce}
+              strategy="afterInteractive"
+            >
+              {googleAnalyticsScript(googleAnalyticsId)}
             </Script>
           </>
         )}
       </head>
 
-      <body className="font-sans antialiased">
+      <body className={`${dmSans.variable} ${playfair.variable} font-sans antialiased`}>
         {children}
       </body>
     </html>

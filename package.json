@@ -2,10 +2,12 @@
   "name": "rtmc-website",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.5.0",
   "scripts": {
     "build": "next build",
     "dev": "next dev",
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "start": "next start"
   },
   "dependencies": {
@@ -67,6 +69,8 @@
     "@types/nodemailer": "^7.0.4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^16.0.10",
     "postcss": "^8.5",
     "tailwindcss": "^4.1.9",
     "tw-animate-css": "1.3.3",

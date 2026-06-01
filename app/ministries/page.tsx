@@ -1,6 +1,6 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { Users, Music, Baby, Coffee, Heart, Globe } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 
 const ministries = [
@@ -68,11 +68,13 @@ export default function MinistriesPage() {
                 href={`/ministries/${ministry.slug}`}
                 className="group bg-card rounded-xl overflow-hidden border border-border hover:border-accent/30 hover:shadow-lg transition-all"
               >
-                <div className="aspect-video overflow-hidden">
-                  <img
+                <div className="relative aspect-video overflow-hidden">
+                  <Image
                     src={ministry.image || "/placeholder.svg"}
                     alt={ministry.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    fill
+                    sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
                 <div className="p-5">

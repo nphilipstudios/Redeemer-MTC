@@ -13,7 +13,7 @@ export default function ContactPage() {
           <p className="text-accent text-sm uppercase tracking-widest mb-3">Reach Out</p>
           <h1 className="font-serif text-4xl md:text-5xl text-primary-foreground mb-4">Contact Us</h1>
           <p className="text-primary-foreground/80 text-lg max-w-2xl mx-auto">
-            We'd love to hear from you. Get in touch with any questions or prayer requests.
+            We&apos;d love to hear from you. Get in touch with any questions or prayer requests.
           </p>
         </div>
       </section>
