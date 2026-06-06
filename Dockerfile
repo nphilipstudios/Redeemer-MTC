@@ -24,10 +24,11 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/public ./public
+COPY --from=builder /app/server-wrapper.js ./server-wrapper.js
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 EXPOSE 3000
 
-CMD ["sh", "-c", "PORT=3000 HOSTNAME=0.0.0.0 node server.js"]
+CMD ["node", "server-wrapper.js"]
