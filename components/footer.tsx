@@ -13,6 +13,7 @@ const footerLinks = {
   discover: [
     { label: "About Us", href: "/about" },
     { label: "Ministries", href: "/ministries" },
+    { label: "Privacy Policy", href: "/privacy-policy" },
   ],
   getInvolved: [
     { label: "Events", href: "/events" },

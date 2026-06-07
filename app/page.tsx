@@ -3,7 +3,6 @@
 import { Header } from "@/components/header"
 import { Hero } from "@/components/hero"
 import { QuickLinks } from "@/components/quick-links"
-import { InstagramStoriesSection } from "@/components/InstagramStoriesSection"
 import { ServiceTeasers } from "@/components/service-teasers"
 import { EventsTeaser } from "@/components/events-teaser"
 import { Footer } from "@/components/footer"

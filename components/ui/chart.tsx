@@ -22,6 +22,19 @@ type ChartContextProps = {
   config: ChartConfig
 }
 
+const SAFE_CSS_IDENTIFIER = /^[a-zA-Z_][a-zA-Z0-9_-]*$/
+const SAFE_CSS_COLOR =
+  /^(#[0-9a-fA-F]{3,8}|(?:rgb|hsl)a?\([\d\s%.,/-]+\)|(?:var|oklch|oklab|lab|lch|color-mix)\([a-zA-Z0-9\s%#.,/+*_-]+\)|[a-zA-Z]+)$/
+
+function sanitizeCssIdentifier(value: string) {
+  return SAFE_CSS_IDENTIFIER.test(value) ? value : null
+}
+
+function sanitizeCssColor(value?: string) {
+  if (!value) return null
+  return SAFE_CSS_COLOR.test(value) ? value : null
+}
+
 const ChartContext = React.createContext<ChartContextProps | null>(null)
 
 function useChart() {
@@ -87,11 +100,15 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
 ${prefix} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
+    const safeKey = sanitizeCssIdentifier(key)
     const color =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
       itemConfig.color
-    return color ? `  --color-${key}: ${color};` : null
+    const safeColor = sanitizeCssColor(color)
+
+    return safeKey && safeColor ? `  --color-${safeKey}: ${safeColor};` : null
   })
+  .filter(Boolean)
   .join('\n')}
 }
 `,

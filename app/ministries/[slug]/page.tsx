@@ -1,7 +1,7 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { Button } from "@/components/ui/button"
 import { ArrowLeft, Calendar, MapPin, Clock } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
@@ -96,7 +96,13 @@ export default async function MinistryDetailPage({ params }: { params: Promise<{
       {/* Hero Section */}
       <section className="relative pt-24 pb-16">
         <div className="absolute inset-0 z-0">
-          <img src={ministry.image || "/placeholder.svg"} alt={ministry.title} className="w-full h-full object-cover filter blur-[0.5px]" />
+          <Image
+            src={ministry.image || "/placeholder.svg"}
+            alt={ministry.title}
+            fill
+            sizes="100vw"
+            className="object-cover filter blur-[0.5px]"
+          />
           <div className="absolute inset-0 bg-primary/80" />
         </div>
 

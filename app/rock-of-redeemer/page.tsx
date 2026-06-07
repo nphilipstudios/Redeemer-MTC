@@ -1,5 +1,6 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import Image from "next/image"
 
 export default function RockOfRedeemerPage() {
   return (
@@ -10,11 +11,13 @@ export default function RockOfRedeemerPage() {
         <div className="max-w-5xl mx-auto px-6 lg:px-8">
           {/* Logo */}
           <div className="mb-12">
-            <div className="max-w-xl mx-auto h-60 md:h-72 overflow-hidden flex justify-center">
-              <img
+            <div className="relative max-w-xl mx-auto h-60 md:h-72 overflow-hidden">
+              <Image
                 src="/Redeemer Logo copy.jpg"
                 alt="Redeemer Mar Thoma Church logo"
-                className="w-full h-full object-cover object-center scale-102"
+                fill
+                sizes="(min-width: 768px) 36rem, 100vw"
+                className="object-cover object-center scale-102"
               />
             </div>
           </div>
@@ -140,7 +143,7 @@ export default function RockOfRedeemerPage() {
                 <div>
                   <p className="font-semibold text-foreground">Personal Check</p>
                   <p>
-                    Make checks payable to "Redeemer MTC" and include "Church purchase fund" in the memo field.
+                    Make checks payable to &quot;Redeemer MTC&quot; and include &quot;Church purchase fund&quot; in the memo field.
                   </p>
                 </div>
 
