@@ -16,6 +16,7 @@ const footerLinks = {
   ],
   getInvolved: [
     { label: "Events", href: "/events" },
+    { label: "Privacy Policy", href: "/privacy-policy" },
   ],
 }
 
