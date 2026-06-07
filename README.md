@@ -15,7 +15,7 @@ Public-facing website for **Redeemer Mar Thoma Church (RTMC)**, a Christian comm
 | Forms | React Hook Form + Zod |
 | Email | Nodemailer (Gmail SMTP) |
 | Calendar | Google Calendar API v3 |
-| Analytics | Vercel Analytics (`@vercel/analytics`) |
+| Analytics | Google Analytics (GA4 via `NEXT_PUBLIC_GA_ID`) |
 | Package Manager | pnpm (lock file present; npm lock file also present) |
 | Deployment | Railway (Docker) |
 

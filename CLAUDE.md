@@ -46,7 +46,6 @@ pnpm lint
 | Email | Nodemailer (Gmail SMTP) |
 | External Data | Google Calendar API v3 |
 | Analytics | Google Analytics (GA4, via `<script>` tag + `NEXT_PUBLIC_GA_ID`) |
-| Analytics | Vercel Analytics (via `@vercel/analytics` npm package) |
 
 ### Directory Structure
 
