@@ -162,16 +162,24 @@ The site is deployed on Railway using Docker (standalone Next.js build).
 
 Set all required environment variables (see [Environment Variables](#environment-variables)) in the Railway service dashboard before deploying.
 
+### Deploying New Changes
+
+Use the `staging` branch as the integration branch for all new work.
+
+1. Make changes on `staging`, either by committing directly to `staging` or by creating a feature branch and merging it into `staging`.
+2. Commit and push the changes to the GitHub `staging` branch.
+3. Test the deployed changes on the Railway staging site: https://rmtc-website-staging.up.railway.app/
+4. If staging works as expected, create a pull request from `staging` into `main`.
+5. Dennis or Nick must approve the pull request before it is merged.
+6. After approval and merge, the `main` branch receives the production code and Railway deploys the update to the live site at https://redeemermtc.org.
+
 ---
 
 ## TODO
 
 - [ ] **Determine the Google project used for Google Calendar** — Nick to confirm which GCP project owns the API key and calendar
 - [ ] **Rotate the Google Calendar API key** — The previous key was hardcoded in source and committed to git; must be revoked and replaced
-- [x] **Create a Railway staging instance** — Deploy from the `staging` branch; used for testing before production
-- [ ] **Create a Railway production instance** — Deploy from `main`; serves live traffic
-- [x] **Deploy the site onto Railway staging** — First test deployment to validate Railway config, env vars, and build
-- [ ] **Require PR approval to merge to `main`** — Dennis Thomas must approve all pull requests before changes reach production (configure via GitHub branch protection rules)
+- [x] **Require PR approval to merge to `main`** — Dennis or Nick must approve all pull requests before changes reach production
 
 ---
 
