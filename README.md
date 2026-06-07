@@ -17,7 +17,7 @@ Public-facing website for **Redeemer Mar Thoma Church (RTMC)**, a Christian comm
 | Calendar | Google Calendar API v3 |
 | Analytics | Vercel Analytics (`@vercel/analytics`) |
 | Package Manager | pnpm (lock file present; npm lock file also present) |
-| Deployment | Currently Vercel — migrating to Railway |
+| Deployment | Railway (Docker) |
 
 ---
 
@@ -57,7 +57,6 @@ rtmc-website/
 │   └── theme-provider.tsx
 ├── lib/
 │   ├── google-calendar-events.ts   # Client-side hook + event filtering/formatting
-│   ├── churchtrac-events.ts        # Legacy ChurchTrac hook (wraps Google Calendar API)
 │   ├── events-data.ts
 │   ├── eventgroup.ts
 │   ├── event-window.ts
@@ -98,7 +97,7 @@ Fetches events from Google Calendar for a rolling window (2 months past → 6 mo
 **Environment variables required:**
 - `GOOGLE_CALENDAR_ID` — the calendar's address (defaults to a hardcoded import calendar ID if not set)
 
-**Note:** The Google API key is currently hardcoded in the route file. See Security Hardening Recommendations.
+**Note:** `GOOGLE_CALENDAR_API_KEY` is read exclusively from environment variables.
 
 ### `POST /api/google-calendar/contact`
 Accepts a JSON body `{ firstName, lastName, email, message }` and sends an email via Gmail SMTP using Nodemailer.
@@ -156,9 +155,9 @@ pnpm start
 ### Target: Railway
 The site is deployed on Railway using Docker (standalone Next.js build).
 
-- **Build:** `Dockerfile` — multi-stage build using `node:20-alpine`; produces a minimal `output: standalone` image
+- **Build:** `Dockerfile` — multi-stage build using `node:22-alpine`; produces a minimal `output: standalone` image
 - **Config:** `railway.toml` — points Railway at the Dockerfile, sets healthcheck on `/`, restart policy on failure
-- **Start:** `node server.js` (Next.js standalone server entry point)
+- **Start:** `node server-wrapper.js` (see root `server-wrapper.js`)
 - **Port:** `3000`
 
 Set all required environment variables (see [Environment Variables](#environment-variables)) in the Railway service dashboard before deploying.
@@ -169,9 +168,9 @@ Set all required environment variables (see [Environment Variables](#environment
 
 - [ ] **Determine the Google project used for Google Calendar** — Nick to confirm which GCP project owns the API key and calendar
 - [ ] **Rotate the Google Calendar API key** — The previous key was hardcoded in source and committed to git; must be revoked and replaced
-- [ ] **Create a Railway staging instance** — Deploy from the `staging` branch; used for testing before production
+- [x] **Create a Railway staging instance** — Deploy from the `staging` branch; used for testing before production
 - [ ] **Create a Railway production instance** — Deploy from `main`; serves live traffic
-- [ ] **Deploy the site onto Railway staging** — First test deployment to validate Railway config, env vars, and build
+- [x] **Deploy the site onto Railway staging** — First test deployment to validate Railway config, env vars, and build
 - [ ] **Require PR approval to merge to `main`** — Dennis Thomas must approve all pull requests before changes reach production (configure via GitHub branch protection rules)
 
 ---
