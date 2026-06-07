@@ -97,7 +97,7 @@ function EventChip({ event }: { event: CalendarEvent }) {
     <Link
       href={`/events#${eventAnchorId(event)}`}
       className={[
-        "flex w-full max-w-full min-w-0 items-start gap-2 rounded-3xl border px-3 py-2 text-sm transition-colors sm:inline-flex sm:w-fit",
+        "flex w-full max-w-full min-w-0 items-start gap-2 rounded-3xl border px-3 py-2 text-sm transition-colors",
         containerTone,
         todayRing ? "ring-2 ring-accent/50" : "",
         "cursor-pointer",
@@ -169,7 +169,7 @@ function ChipSection({
       {events.length === 0 ? (
         <p className="text-sm text-muted-foreground">{emptyText}</p>
       ) : (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col gap-2">
           {events.map((e, idx) => (
             <EventChip key={(e.id || e.title) + "-" + idx} event={e} />
           ))}
