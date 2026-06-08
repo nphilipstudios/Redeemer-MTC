@@ -97,7 +97,7 @@ function EventChip({ event }: { event: CalendarEvent }) {
     <Link
       href={`/events#${eventAnchorId(event)}`}
       className={[
-        "inline-flex max-w-full min-w-0 items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors",
+        "flex w-full max-w-full min-w-0 items-start gap-2 rounded-3xl border px-3 py-2 text-sm transition-colors",
         containerTone,
         todayRing ? "ring-2 ring-accent/50" : "",
         "cursor-pointer",
@@ -107,36 +107,38 @@ function EventChip({ event }: { event: CalendarEvent }) {
     >
       {/* dot (color by event type) */}
       <span
-        className={["w-2 h-2 rounded-full", dotColor, isPast ? "opacity-40" : ""].join(
+        className={["mt-1.5 h-2 w-2 shrink-0 rounded-full", dotColor, isPast ? "opacity-40" : ""].join(
           " "
         )}
       />
 
       {/* strike through DATE + TIME + TITLE */}
-      <span className={`text-accent font-semibold ${strike}`}>
+      <span className={`shrink-0 text-accent font-semibold ${strike}`}>
         {fmtMonthDay(startDate)}
       </span>
 
-      <span className={`text-muted-foreground ${strike}`}>
+      <span className={`shrink-0 text-muted-foreground ${strike}`}>
         {fmtTime(startDate)}
       </span>
 
-      <span
-        className={`font-medium truncate min-w-0 max-w-[18rem] ${strike} ${
-          isPast ? "" : "text-foreground"
-        }`}
-      >
-        {prettyTitle(event.title)}
-      </span>
-
-      {event.location ? (
+      <span className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
         <span
-          className={`hidden md:inline-flex min-w-0 items-center gap-1 text-muted-foreground ${strike}`}
+          className={`min-w-0 max-w-full whitespace-normal break-words leading-snug font-medium sm:max-w-[18rem] lg:max-w-[16rem] xl:max-w-[20rem] ${strike} ${
+            isPast ? "" : "text-foreground"
+          }`}
         >
-          <MapPin className="w-3.5 h-3.5" />
-          <span className="truncate max-w-[12rem]">{event.location}</span>
+          {prettyTitle(event.title)}
         </span>
-      ) : null}
+
+        {event.location ? (
+          <span
+            className={`hidden min-w-0 max-w-full items-center gap-1 text-muted-foreground md:inline-flex ${strike}`}
+          >
+            <MapPin className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate max-w-[12rem]">{event.location}</span>
+          </span>
+        ) : null}
+      </span>
     </Link>
   )
 }
@@ -167,7 +169,7 @@ function ChipSection({
       {events.length === 0 ? (
         <p className="text-sm text-muted-foreground">{emptyText}</p>
       ) : (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col gap-2">
           {events.map((e, idx) => (
             <EventChip key={(e.id || e.title) + "-" + idx} event={e} />
           ))}
