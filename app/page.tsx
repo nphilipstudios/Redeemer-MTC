@@ -5,6 +5,7 @@ import { Hero } from "@/components/hero"
 import { QuickLinks } from "@/components/quick-links"
 import { ServiceTeasers } from "@/components/service-teasers"
 import { EventsTeaser } from "@/components/events-teaser"
+import { VbsBanner } from "@/components/vbs-banner"
 import { Footer } from "@/components/footer"
 import { Heart, Users, Globe, HandHeart } from "lucide-react"
 
@@ -36,6 +37,7 @@ export default function HomePage() {
     <main className="min-h-screen">
       <Header />
       <Hero />
+      <VbsBanner />
       <QuickLinks />
 
       {/* Services Section */}
