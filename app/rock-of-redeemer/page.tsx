@@ -1,6 +1,13 @@
+import type { Metadata } from "next"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import Image from "next/image"
+
+export const metadata: Metadata = {
+  title: "Rock of Redeemer | Redeemer MTC",
+  description:
+    "Learn about the Redeemer Mar Thoma Church fundraising appeal and building campaign.",
+}
 
 export default function RockOfRedeemerPage() {
   return (
