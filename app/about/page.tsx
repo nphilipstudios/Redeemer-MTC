@@ -1,6 +1,13 @@
+import type { Metadata } from "next"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import Image from "next/image"
+
+export const metadata: Metadata = {
+  title: "About | Redeemer MTC",
+  description:
+    "Learn about Redeemer Mar Thoma Church, our mission, beliefs, parish history, and vicar.",
+}
 
 const missionPoints = [
   "To be the repository of the divine doctrines revealed by Jesus Christ and proclaimed by His Apostles.",

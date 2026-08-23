@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ArrowLeft, Calendar, MapPin, Clock } from "lucide-react"
@@ -79,6 +80,36 @@ const ministryColorMap: Record<string, string> = {
   men: "bg-blue-500",
   women: "bg-purple-500",
   children: "bg-green-500",
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params
+  const ministry = ministryDetails[slug]
+
+  if (!ministry) {
+    return {
+      title: "Ministry Not Found | Redeemer MTC",
+    }
+  }
+
+  return {
+    title: `${ministry.title} | Redeemer MTC`,
+    description: ministry.description,
+    openGraph: {
+      title: ministry.title,
+      description: ministry.description,
+      images: [
+        {
+          url: ministry.image,
+          alt: ministry.title,
+        },
+      ],
+    },
+  }
 }
 
 export default async function MinistryDetailPage({ params }: { params: Promise<{ slug: string }> }) {

@@ -1,7 +1,14 @@
+import type { Metadata } from "next"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import Image from "next/image"
 import Link from "next/link"
+
+export const metadata: Metadata = {
+  title: "Ministries | Redeemer MTC",
+  description:
+    "Discover Redeemer MTC ministries for music, youth, children, men, women, and prayer.",
+}
 
 const ministries = [
   {
