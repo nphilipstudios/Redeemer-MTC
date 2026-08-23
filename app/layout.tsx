@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 import { DM_Sans, Playfair_Display } from "next/font/google"
 import { headers } from "next/headers"
 import Script from "next/script"
+import { Suspense } from "react"
+import { GoogleAnalytics } from "@/components/google-analytics"
 import "./globals.css"
 
 const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans" })
@@ -18,7 +20,7 @@ function googleAnalyticsScript(id: string) {
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', ${safeId});
+    gtag('config', ${safeId}, { send_page_view: false });
   `
 }
 
@@ -85,6 +87,11 @@ export default async function RootLayout({
       </head>
 
       <body className={`${dmSans.variable} ${playfair.variable} font-sans antialiased`}>
+        {googleAnalyticsId && (
+          <Suspense fallback={null}>
+            <GoogleAnalytics measurementId={googleAnalyticsId} />
+          </Suspense>
+        )}
         {children}
       </body>
     </html>
