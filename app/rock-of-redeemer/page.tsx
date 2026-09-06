@@ -9,7 +9,27 @@ export const metadata: Metadata = {
     "Learn about the Redeemer Mar Thoma Church fundraising appeal and building campaign.",
 }
 
+export const dynamic = "force-dynamic"
+
+const DEFAULT_COMMITTED_AMOUNT = 620_000
+
+function getCommittedAmount() {
+  const amountInput = process.env.ROCK_OF_REDEEMER_COMMITTED_AMOUNT?.trim()
+  const amount = Number(amountInput)
+
+  return amountInput && Number.isFinite(amount) && amount >= 0
+    ? amount
+    : DEFAULT_COMMITTED_AMOUNT
+}
+
 export default function RockOfRedeemerPage() {
+  const committedAmount = getCommittedAmount()
+  const formattedCommittedAmount = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(committedAmount)
+
   return (
     <main className="min-h-screen bg-background">
       <Header />
@@ -47,7 +67,7 @@ export default function RockOfRedeemerPage() {
               </p>
 
               <h2 className="font-serif text-5xl md:text-6xl text-foreground mb-3">
-                $620,000
+                {formattedCommittedAmount}
               </h2>
 
               <p className="text-muted-foreground mb-8">

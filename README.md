@@ -128,6 +128,9 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.com
 
 # Analytics
 NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
+
+# Rock of Redeemer campaign (whole-dollar amount)
+ROCK_OF_REDEEMER_COMMITTED_AMOUNT=620000
 ```
 
 ---
