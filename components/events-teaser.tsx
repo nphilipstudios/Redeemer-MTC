@@ -3,10 +3,12 @@
 import Link from "next/link"
 import { ArrowRight, CalendarDays, MapPin } from "lucide-react"
 import {
-  useGoogleCalendarEvents,
+  useCalendarEvents,
+  parseCalendarDate,
+  hasTime,
   prettyTitle,
   type CalendarEvent,
-} from "@/lib/google-calendar-events"
+} from "@/lib/calendar-events"
 
 import { getEventGroup } from "@/lib/eventgroup"
 
@@ -56,7 +58,7 @@ function fmtTime(d: Date) {
 
 function safeDate(value?: string) {
   if (!value) return null
-  const d = new Date(value)
+  const d = parseCalendarDate(value)
   return isNaN(d.getTime()) ? null : d
 }
 
@@ -117,9 +119,11 @@ function EventChip({ event }: { event: CalendarEvent }) {
         {fmtMonthDay(startDate)}
       </span>
 
-      <span className={`shrink-0 text-muted-foreground ${strike}`}>
-        {fmtTime(startDate)}
-      </span>
+      {hasTime(event.start) && (
+        <span className={`shrink-0 text-muted-foreground ${strike}`}>
+          {fmtTime(startDate)}
+        </span>
+      )}
 
       <span className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
         <span
@@ -180,7 +184,7 @@ function ChipSection({
 }
 
 export function EventsTeaser() {
-  const { events, isLoading, error } = useGoogleCalendarEvents()
+  const { events, isLoading, error } = useCalendarEvents()
 
   const now = new Date()
   const nextSevenDaysStart = new Date(now)

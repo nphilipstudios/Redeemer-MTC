@@ -2,19 +2,16 @@
 
 import { useEffect, useState } from "react"
 
-export interface CalendarEvent {
-  id: string
-  title: string
-  description?: string
-  location?: string
-  start: string
-  end: string
-}
+import type { CalendarEvent } from "./calendar-event"
+import { parseCalendarDate } from "./calendar-date"
+
+export type { CalendarEvent } from "./calendar-event"
+export { parseCalendarDate } from "./calendar-date"
 
 // ------------------------
 // Hook: fetch from API
 // ------------------------
-export function useGoogleCalendarEvents() {
+export function useCalendarEvents() {
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -25,13 +22,13 @@ export function useGoogleCalendarEvents() {
     async function fetchEvents() {
       try {
         setIsLoading(true)
-        const response = await fetch("/api/google-calendar", { cache: "no-store" })
+        const response = await fetch("/api/calendar", { cache: "no-store" })
         const data = await response.json()
 
         if (!mounted) return
 
-        if (data?.error) {
-          setError(String(data.error))
+        if (!response.ok || data?.error) {
+          setError(String(data?.error || "Failed to load calendar events"))
           setEvents([])
         } else {
           setError(null)
@@ -59,21 +56,20 @@ export function useGoogleCalendarEvents() {
 }
 
 // ------------------------
-// Classification (DESCRIPTION-BASED)
+// Classification (description, with title fallback when empty)
 // ------------------------
-function norm(s?: string) {
-  return (s ?? "").toLowerCase()
+function classificationText(event: CalendarEvent) {
+  return (event.description?.trim() || event.title).toLowerCase()
 }
 
 /**
- * ✅ Service detection (DESCRIPTION-only)
+ * Service detection uses descriptions, or titles when descriptions are empty.
  * Put keywords like "holy communion", "acts worship", "praise & worship"
- * in the Google Calendar DESCRIPTION.
+ * in the calendar DESCRIPTION.
  */
 export function isServiceEvent(event: CalendarEvent) {
-  const d = norm(event.description)
-  // NOTE: Service matching is DESCRIPTION-based.
-  // Add the corresponding keywords into the Google Calendar event DESCRIPTION.
+  const d = classificationText(event)
+  // A nonempty description remains authoritative for classification.
   return (
     // Holy Qurbana / Holy Communion
     d.includes("holy qurbana") ||
@@ -89,11 +85,11 @@ export function isServiceEvent(event: CalendarEvent) {
 }
 
 /**
- * ✅ Sunday School detection (DESCRIPTION-only)
- * Put "sunday school" in the Google Calendar DESCRIPTION.
+ * Sunday School detection uses the same description/title fallback.
+ * Put "sunday school" in the calendar DESCRIPTION.
  */
 export function isSundaySchoolEvent(event: CalendarEvent) {
-  return norm(event.description).includes("sunday school")
+  return classificationText(event).includes("sunday school")
 }
 
 /**
@@ -123,12 +119,12 @@ export function prettyTitle(title?: string) {
 // Time helpers
 // ------------------------
 function safeDate(value: string) {
-  const d = new Date(value)
+  const d = parseCalendarDate(value)
   return isNaN(d.getTime()) ? null : d
 }
 
 /**
- * Google all-day events are returned as "YYYY-MM-DD" (no "T").
+ * All-day events are returned as "YYYY-MM-DD" (no "T").
  * Timed events include "T" (e.g. "YYYY-MM-DDT10:00:00-05:00").
  */
 export function hasTime(dateString?: string) {
@@ -145,7 +141,7 @@ function isSameDay(a: Date, b: Date) {
 
 /**
  * Find a Sunday School event on the same date as `dateString`.
- * ✅ Matches by DESCRIPTION (contains "sunday school")
+ * Matches descriptions, falling back to titles when empty.
  * ✅ If none exists, returns null.
  */
 export function getSundaySchoolEventForDate(
@@ -198,7 +194,7 @@ export function filterFutureEvents(events: CalendarEvent[], minutesPast = 24 * 6
       return !!start && start >= cutoff
     })
     .slice()
-    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+    .sort((a, b) => parseCalendarDate(a.start).getTime() - parseCalendarDate(b.start).getTime())
 }
 
 // ------------------------
@@ -217,12 +213,12 @@ export function getUpcomingServices(events: CalendarEvent[], hoursAfterEnd = 6) 
     .filter((e) => isServiceEvent(e))
     .filter((e) => isVisibleHoursAfterEnd(e, hoursAfterEnd))
     .slice()
-    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+    .sort((a, b) => parseCalendarDate(a.start).getTime() - parseCalendarDate(b.start).getTime())
 }
 
 /**
  * EVENTS (non-services).
- * ✅ Never includes services (DESCRIPTION-based)
+ * Never includes services.
  * ✅ Includes recurring + all-day events too
  */
 export function getUpcomingEvents(events: CalendarEvent[]) {
@@ -235,14 +231,14 @@ export function getUpcomingEvents(events: CalendarEvent[]) {
 export function getAllEvents(events: CalendarEvent[]) {
   return events
     .slice()
-    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+    .sort((a, b) => parseCalendarDate(a.start).getTime() - parseCalendarDate(b.start).getTime())
 }
 
 // ------------------------
 // Formatting helpers
 // ------------------------
 export function formatEventDate(dateString: string): string {
-  const date = new Date(dateString)
+  const date = parseCalendarDate(dateString)
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
 }
 
@@ -254,7 +250,7 @@ export function formatEventDate(dateString: string): string {
 export function formatEventTime(dateString: string): string {
   if (!hasTime(dateString)) return ""
 
-  const date = new Date(dateString)
+  const date = parseCalendarDate(dateString)
   return date.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",

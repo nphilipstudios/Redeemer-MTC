@@ -5,7 +5,8 @@ import { Footer } from "@/components/footer"
 import Image from "next/image"
 import { Clock, BookOpen, MapPin } from "lucide-react"
 import {
-  useGoogleCalendarEvents,
+  useCalendarEvents,
+  parseCalendarDate,
   getUpcomingServices,
   isSundaySchoolEvent,
   prettyLocation,
@@ -13,7 +14,7 @@ import {
   formatEventTime,
   prettyTitle,
   type CalendarEvent,
-} from "@/lib/google-calendar-events"
+} from "@/lib/calendar-events"
 
 function getServiceImage(service: CalendarEvent) {
   const text = `${service.title ?? ""} ${service.description ?? ""}`.toLowerCase()
@@ -35,12 +36,12 @@ function getServiceImage(service: CalendarEvent) {
 }
 
 export default function ServicesPage() {
-  const { events, isLoading, error } = useGoogleCalendarEvents()
+  const { events, isLoading, error } = useCalendarEvents()
 
   // ✅ services only, auto-hide 6 hours after END
   const services: CalendarEvent[] = getUpcomingServices(events, 6).slice(0, 6)
 
-  // optional: Sunday School exists anywhere in calendar (description-based)
+  // optional: Sunday School exists anywhere in calendar (description with title fallback when empty)
   const hasSundaySchool = events.some((e) => isSundaySchoolEvent(e))
 
   return (
@@ -73,7 +74,7 @@ export default function ServicesPage() {
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {services.map((service) => {
-                const startDate = new Date(service.start)
+                const startDate = parseCalendarDate(service.start)
                 const isSunday = startDate.getDay() === 0
 
                 return (
@@ -97,7 +98,7 @@ export default function ServicesPage() {
                     </div>
 
                     <div className="p-4">
-                      {/* ✅ Title EXACTLY from Google Calendar */}
+                      {/* ✅ Title from the calendar feed */}
                       <h3 className="font-serif text-lg text-foreground mb-3 group-hover:text-accent transition-colors">
                         {prettyTitle(service.title)}
                       </h3>

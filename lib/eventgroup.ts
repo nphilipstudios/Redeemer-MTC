@@ -1,4 +1,4 @@
-import type { CalendarEvent } from "@/lib/google-calendar-events"
+import type { CalendarEvent } from "@/lib/calendar-events"
 
 export type EventGroup = {
   name:
