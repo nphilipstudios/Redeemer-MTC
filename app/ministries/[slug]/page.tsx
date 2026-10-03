@@ -131,18 +131,9 @@ export default async function MinistryDetailPage({ params }: { params: Promise<{
       {/* Content Section */}
       <section className="py-16 bg-background">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid lg:grid-cols-3 gap-12">
-            {/* Main Content */}
-            <div className="lg:col-span-2">
-              <h2 className="font-serif text-2xl text-foreground mb-4">About This Ministry</h2>
-              <p className="text-muted-foreground leading-relaxed mb-8">{ministry.fullDescription}</p>
-            </div>
-
-            {/* Sidebar */}
-            <div>
-              <MinistryEvents slug={slug} />
-            </div>
-          </div>
+          <h2 className="font-serif text-2xl text-foreground mb-4">About This Ministry</h2>
+          <p className="text-muted-foreground leading-relaxed mb-8">{ministry.fullDescription}</p>
+          <MinistryEvents slug={slug} />
         </div>
       </section>
 
