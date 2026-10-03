@@ -6,10 +6,11 @@ function createNonce() {
 }
 
 function createContentSecurityPolicy(nonce: string) {
+  const isDev = process.env.NODE_ENV === "development"
   const directives = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' https://www.googletagmanager.com https://www.google-analytics.com`,
-    `style-src 'self' 'nonce-${nonce}' https://fonts.googleapis.com`,
+    `script-src 'self' 'nonce-${nonce}'${isDev ? " 'unsafe-eval'" : ""} https://www.googletagmanager.com https://www.google-analytics.com`,
+    `style-src 'self' ${isDev ? "'unsafe-inline'" : `'nonce-${nonce}'`} https://fonts.googleapis.com`,
     "style-src-attr 'unsafe-inline'",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https:",
@@ -19,7 +20,7 @@ function createContentSecurityPolicy(nonce: string) {
     "form-action 'self'",
     "frame-ancestors 'none'",
     "object-src 'none'",
-    "upgrade-insecure-requests",
+    ...(isDev ? [] : ["upgrade-insecure-requests"]),
   ]
 
   return directives.join("; ")
@@ -27,8 +28,11 @@ function createContentSecurityPolicy(nonce: string) {
 
 export function proxy(request: NextRequest) {
   const nonce = createNonce()
+  const contentSecurityPolicy = createContentSecurityPolicy(nonce)
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set("x-nonce", nonce)
+  // Next.js reads the request policy to nonce its generated scripts and styles.
+  requestHeaders.set("Content-Security-Policy", contentSecurityPolicy)
 
   const response = NextResponse.next({
     request: {
@@ -36,7 +40,7 @@ export function proxy(request: NextRequest) {
     },
   })
 
-  response.headers.set("Content-Security-Policy", createContentSecurityPolicy(nonce))
+  response.headers.set("Content-Security-Policy", contentSecurityPolicy)
 
   return response
 }

@@ -2,6 +2,7 @@
 
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { Separator } from "@/components/ui/separator"
 import { getEventGroup } from "@/lib/eventgroup"
 import {
   useCalendarEvents,
@@ -95,6 +96,20 @@ export default function EventsPage() {
   const upcomingEvents: CalendarEvent[] = nonServiceUpcoming
     .filter((e) => !getRecurringKey(e))
 
+  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+  const eventSections = [
+    {
+      id: "current-month",
+      title: now.toLocaleDateString("en-US", { month: "long" }),
+      events: upcomingEvents.filter((event) => parseCalendarDate(event.start) < nextMonth),
+    },
+    {
+      id: "future-events",
+      title: "Future Events",
+      events: upcomingEvents.filter((event) => parseCalendarDate(event.start) >= nextMonth),
+    },
+  ]
+
   // Bottom section: show each recurring series ONCE (take the next upcoming instance)
   const recurringEvents: CalendarEvent[] = (() => {
     const seen = new Set<string>()
@@ -136,72 +151,95 @@ export default function EventsPage() {
             </div>
           ) : (
             <>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-                {upcomingEvents.map((event) => {
-                  const eventGroup = getEventGroup(event)
-                  const url = extractFirstUrl(event.description)
-
-                  return (
-                    <div
-                      id={eventAnchorId(event)}
-                      key={event.id}
-                      className="bg-card rounded-xl border border-border p-5 hover:shadow-lg transition-all relative min-w-0 scroll-mt-32"
-                    >
-                      {/* Date + Group */}
-                      <div className="absolute top-3 left-3 flex items-center gap-2">
-                        <span className="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-sm font-medium">
-                          {formatEventDate(event.start)}
-                        </span>
-                        <span
-                          className={`px-2 py-1 rounded-lg text-xs font-medium uppercase ${eventGroup.color}`}
+              <div className="space-y-12 mb-16">
+                {eventSections.map((section) => (
+                  section.id === "future-events" && section.events.length === 0 ? null : (
+                    <section key={section.id} aria-labelledby={`${section.id}-heading`}>
+                      <div className="flex items-center gap-4 mb-6">
+                        <h2
+                          id={`${section.id}-heading`}
+                          className="font-serif text-2xl md:text-3xl text-foreground shrink-0"
                         >
-                          {eventGroup.name}
-                        </span>
+                          {section.title}
+                        </h2>
+                        <Separator className="flex-1" />
                       </div>
+                      {section.events.length === 0 ? (
+                        <p className="text-muted-foreground">
+                          No more events scheduled this month.
+                        </p>
+                      ) : (
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {section.events.map((event) => {
+                            const eventGroup = getEventGroup(event)
+                            const url = extractFirstUrl(event.description)
 
-                      {/* Title */}
-                      <h3 className="font-serif text-lg text-foreground mb-3 mt-8 break-words line-clamp-2">
-                        {event.title}
-                      </h3>
+                            return (
+                              <div
+                                id={eventAnchorId(event)}
+                                key={event.id}
+                                className="bg-card rounded-xl border border-border p-5 hover:shadow-lg transition-all relative min-w-0 scroll-mt-32"
+                              >
+                                {/* Date + Group */}
+                                <div className="absolute top-3 left-3 flex items-center gap-2">
+                                  <span className="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-sm font-medium">
+                                    {formatEventDate(event.start)}
+                                  </span>
+                                  <span
+                                    className={`px-2 py-1 rounded-lg text-xs font-medium uppercase ${eventGroup.color}`}
+                                  >
+                                    {eventGroup.name}
+                                  </span>
+                                </div>
 
-                      {/* Time, Location, Description */}
-                      <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-                        {hasExplicitTime(event.start) ? (
-                          <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-accent" />
-                            <span>{formatEventTime(event.start)}</span>
-                          </div>
-                        ) : null}
+                                {/* Title */}
+                                <h3 className="font-serif text-lg text-foreground mb-3 mt-8 break-words line-clamp-2">
+                                  {event.title}
+                                </h3>
 
-                        {event.location ? (
-                          <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-accent" />
-                            <span className="truncate min-w-0">
-                              {prettyLocation(event.location)}
-                            </span>
-                          </div>
-                        ) : null}
+                                {/* Time, Location, Description */}
+                                <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+                                  {hasExplicitTime(event.start) ? (
+                                    <div className="flex items-center gap-2">
+                                      <Clock className="w-4 h-4 text-accent" />
+                                      <span>{formatEventTime(event.start)}</span>
+                                    </div>
+                                  ) : null}
 
-                        {event.description ? (
-                          <p className="mt-2 text-sm leading-relaxed line-clamp-3 break-words">
-                            {removeUrls(event.description.split("\n")[0])}
-                          </p>
-                        ) : null}
+                                  {event.location ? (
+                                    <div className="flex items-center gap-2">
+                                      <MapPin className="w-4 h-4 text-accent" />
+                                      <span className="truncate min-w-0">
+                                        {prettyLocation(event.location)}
+                                      </span>
+                                    </div>
+                                  ) : null}
 
-                        {url ? (
-                          <a
-                            href={url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="mt-2 inline-flex w-fit items-center text-accent hover:text-accent/80 font-medium break-all"
-                          >
-                            {getDomain(url)} <span className="ml-2">→</span>
-                          </a>
-                        ) : null}
-                      </div>
-                    </div>
+                                  {event.description ? (
+                                    <p className="mt-2 text-sm leading-relaxed line-clamp-3 break-words">
+                                      {removeUrls(event.description.split("\n")[0])}
+                                    </p>
+                                  ) : null}
+
+                                  {url ? (
+                                    <a
+                                      href={url}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="mt-2 inline-flex w-fit items-center text-accent hover:text-accent/80 font-medium break-all"
+                                    >
+                                      {getDomain(url)} <span className="ml-2">→</span>
+                                    </a>
+                                  ) : null}
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </section>
                   )
-                })}
+                ))}
               </div>
 
               {recurringEvents.length > 0 ? (

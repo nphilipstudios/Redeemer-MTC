@@ -4,6 +4,7 @@ export type EventGroup = {
   name:
     | "Sunday Service"
     | "Youth"
+    | "Children's Ministry"
     | "Men's"
     | "Women's"
     | "Recurring"
@@ -42,6 +43,10 @@ export function getEventGroup(eventOrText: CalendarEvent | string): EventGroup {
     t.includes("sunday service")
   ) {
     return { name: "Sunday Service", color: "bg-accent text-white" }
+  }
+
+  if (t.includes("sunday school") || /\bchildren(?:['’]s)? ministry\b/.test(t)) {
+    return { name: "Children's Ministry", color: "bg-lime-500 text-black" }
   }
 
   if (t.includes("youth")) return { name: "Youth", color: "bg-yellow-400 text-yellow-800" }

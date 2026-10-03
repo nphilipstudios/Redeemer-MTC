@@ -14,7 +14,7 @@ Public-facing website for **Redeemer Mar Thoma Church (RTMC)**, a Christian comm
 | Animation | Framer Motion |
 | Forms | React Hook Form + Zod |
 | Email | Nodemailer (Gmail SMTP) |
-| Calendar | ChurchTrac iCal feed (configurable URL) |
+| Calendar | ChurchTrac iCal feed cached on GitHub (configurable URL) |
 | Analytics | Google Analytics (GA4 via `NEXT_PUBLIC_GA_ID`) |
 | Package Manager | pnpm (lock file present; npm lock file also present) |
 | Deployment | Railway (Docker) |
@@ -84,7 +84,7 @@ rtmc-website/
 | `/` | Home — Hero, Quick Links, Service Teasers, Events Teaser, Core Values |
 | `/about` | About the church |
 | `/services` | Regular services (Holy Qurbana, ACTS Worship, Praise & Worship) |
-| `/events` | Upcoming events pulled from ChurchTrac |
+| `/events` | Upcoming events from the GitHub-hosted ChurchTrac calendar feed |
 | `/calendar` | Full monthly calendar view |
 | `/ministries` | Ministry overview grid |
 | `/ministries/[slug]` | Individual ministry detail page |
@@ -96,7 +96,9 @@ rtmc-website/
 ## API Routes
 
 ### `GET /api/calendar`
-Fetches the ChurchTrac iCal feed directly for a rolling window (2 months past → 6 months future), including ongoing events. Expands recurring entries, applies recurrence exceptions and overrides, excludes cancelled events, and respects feed timezones and daylight saving changes. Returns normalized event objects with stable IDs, titles, descriptions, locations, starts, and ends.
+Fetches the iCal feed configured by `CALENDAR_ICAL_URL` for a rolling window (2 months past → 6 months future), including ongoing events. The ChurchTrac calendar ICS file is hosted on GitHub in [rmtctechteam/rmtc-calendar-cache](https://github.com/rmtctechteam/rmtc-calendar-cache) and served through the [raw calendar feed URL](https://raw.githubusercontent.com/rmtctechteam/rmtc-calendar-cache/refs/heads/main/calendar.ics). Expands recurring entries, applies recurrence exceptions and overrides, excludes cancelled events, and respects feed timezones and daylight saving changes. Returns normalized event objects with stable IDs, titles, descriptions, locations, starts, and ends.
+
+The cache repository's [Sync ChurchTrac calendar GitHub Action](https://github.com/rmtctechteam/rmtc-calendar-cache/blob/main/.github/workflows/sync-calendar.yml) is scheduled to download events from ChurchTrac **hourly**, at minute 17 of each hour. It validates the ICS file and commits changes to `calendar.ics`; failed downloads preserve the previous feed. Check its [Actions runs](https://github.com/rmtctechteam/rmtc-calendar-cache/actions/workflows/sync-calendar.yml) if events are stale. The upstream ChurchTrac **Calendar Feed URL** can be configured through the cache repository's `CALENDAR_ICAL_URL` Actions variable.
 
 All-day starts remain `YYYY-MM-DD` so the UI can hide their time. Their exclusive iCal end dates become inclusive local datetimes. Timed events use ISO timestamps. Use `parseCalendarDate` for date-only values to avoid shifting them to the previous day in western timezones.
 
@@ -104,7 +106,7 @@ Upstream fetches and API responses use `no-store`; clients refresh every five mi
 
 **Optional environment variable:**
 
-- `CALENDAR_ICAL_URL` — copy the **Calendar Feed URL** from ChurchTrac and use the complete URL as this value. Defaults to [Redeemer MTC's ChurchTrac feed](https://www.churchtrac.com/ical?ui=E6511E07) when unset. Set it in `.env.local` locally or in Railway service variables. This is a server-side runtime setting; Google Calendar credentials are no longer needed.
+- `CALENDAR_ICAL_URL` — set this website variable to the [GitHub-hosted calendar feed URL](https://raw.githubusercontent.com/rmtctechteam/rmtc-calendar-cache/refs/heads/main/calendar.ics), as shown below. Set it in `.env.local` locally or in Railway service variables. When unset, the code falls back to [Redeemer MTC's direct ChurchTrac feed](https://www.churchtrac.com/ical?ui=E6511E07). This is a server-side runtime setting; Google Calendar credentials are no longer needed.
 
 Services and Sunday School use description keywords, falling back to titles only when a description is empty. Existing title and location normalization and the six-hour service visibility window are preserved.
 
@@ -124,11 +126,11 @@ Accepts a JSON body `{ firstName, lastName, email, message }` and sends an email
 
 Create a `.env.local` file at the project root (never commit this file):
 
-For `CALENDAR_ICAL_URL`, copy the **Calendar Feed URL** from ChurchTrac. The example below uses Redeemer MTC's current feed URL, which is also the default when this variable is unset.
+Set this website's `CALENDAR_ICAL_URL` to the GitHub-hosted ICS URL below. The hourly GitHub Action downloads the original ChurchTrac Calendar Feed URL into that file.
 
 ```env
-# ChurchTrac Calendar Feed URL (optional; overrides the default feed)
-CALENDAR_ICAL_URL=https://www.churchtrac.com/ical?ui=E6511E07
+# GitHub-hosted ChurchTrac calendar (refreshed hourly by GitHub Actions)
+CALENDAR_ICAL_URL=https://raw.githubusercontent.com/rmtctechteam/rmtc-calendar-cache/refs/heads/main/calendar.ics
 
 # Contact form (Gmail SMTP)
 EMAIL_USER=your-gmail@gmail.com
@@ -195,7 +197,7 @@ Use the `staging` branch as the integration branch for all new work.
 
 ## TODO
 
-- [ ] **Revoke the retired Google Calendar API key** — The previous key was hardcoded in source and committed to git; the website now reads ChurchTrac directly
+- [ ] **Revoke the retired Google Calendar API key** — The previous key was hardcoded in source and committed to git; the website now reads the GitHub-hosted ChurchTrac calendar feed
 - [x] **Require PR approval to merge to `main`** — Dennis or Nick must approve all pull requests before changes reach production
 
 ---
