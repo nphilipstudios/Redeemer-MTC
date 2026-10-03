@@ -4,17 +4,18 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { getEventGroup } from "@/lib/eventgroup"
 import {
-  useGoogleCalendarEvents,
+  useCalendarEvents,
+  parseCalendarDate,
   formatEventDate,
   formatEventTime,
   isServiceEvent,
   prettyLocation,
   type CalendarEvent,
-} from "@/lib/google-calendar-events"
+} from "@/lib/calendar-events"
 import { Clock, MapPin } from "lucide-react"
 
 function hasExplicitTime(start: string) {
-  // Google Calendar all-day events come through as YYYY-MM-DD (no "T").
+  // Calendar all-day events come through as YYYY-MM-DD (no "T").
   // Timed events come through as ISO datetime with "T".
   return typeof start === "string" && start.includes("T")
 }
@@ -70,7 +71,7 @@ function weekdayNameFromDate(d: Date) {
 }
 
 function recurringLabelFor(event: CalendarEvent) {
-  const d = new Date(event.start)
+  const d = parseCalendarDate(event.start)
   const weekday = weekdayNameFromDate(d)
   const key = getRecurringKey(event)
 
@@ -80,15 +81,15 @@ function recurringLabelFor(event: CalendarEvent) {
 }
 
 export default function EventsPage() {
-  const { events, isLoading, error } = useGoogleCalendarEvents()
+  const { events, isLoading, error } = useCalendarEvents()
 
   const now = new Date()
 
   const nonServiceUpcoming: CalendarEvent[] = events
     .filter((e) => !isServiceEvent(e))
-    .filter((e) => new Date(e.start) >= now)
+    .filter((e) => parseCalendarDate(e.start) >= now)
     .slice()
-    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+    .sort((a, b) => parseCalendarDate(a.start).getTime() - parseCalendarDate(b.start).getTime())
 
   // Main grid: exclude recurring series instances (Bible Study / Prayer Call)
   const upcomingEvents: CalendarEvent[] = nonServiceUpcoming

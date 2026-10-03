@@ -14,7 +14,7 @@ Public-facing website for **Redeemer Mar Thoma Church (RTMC)**, a Christian comm
 | Animation | Framer Motion |
 | Forms | React Hook Form + Zod |
 | Email | Nodemailer (Gmail SMTP) |
-| Calendar | Google Calendar API v3 |
+| Calendar | ChurchTrac iCal feed (configurable URL) |
 | Analytics | Google Analytics (GA4 via `NEXT_PUBLIC_GA_ID`) |
 | Package Manager | pnpm (lock file present; npm lock file also present) |
 | Deployment | Railway (Docker) |
@@ -38,8 +38,9 @@ rtmc-website/
 │   ├── rock-of-redeemer/page.tsx
 │   ├── services/page.tsx
 │   └── api/
+│       ├── calendar/route.ts   # GET — fetches and expands the iCal feed
 │       └── google-calendar/
-│           ├── route.ts        # GET — fetches events from Google Calendar API
+│           ├── route.ts        # GET — compatibility alias for /api/calendar
 │           └── contact/
 │               └── route.ts   # POST — sends contact form email via Gmail SMTP
 ├── components/
@@ -56,7 +57,10 @@ rtmc-website/
 │   ├── InstagramStoriesSection.tsx
 │   └── theme-provider.tsx
 ├── lib/
-│   ├── google-calendar-events.ts   # Client-side hook + event filtering/formatting
+│   ├── calendar-events.ts      # Client-side hook + event filtering/formatting
+│   ├── calendar-date.ts        # Local date-only event parsing
+│   ├── calendar-event.ts       # Shared normalized event type
+│   ├── ical-events.ts          # Server-side iCal parsing + recurrence expansion
 │   ├── events-data.ts
 │   ├── eventgroup.ts
 │   ├── event-window.ts
@@ -80,7 +84,7 @@ rtmc-website/
 | `/` | Home — Hero, Quick Links, Service Teasers, Events Teaser, Core Values |
 | `/about` | About the church |
 | `/services` | Regular services (Holy Qurbana, ACTS Worship, Praise & Worship) |
-| `/events` | Upcoming events pulled from Google Calendar |
+| `/events` | Upcoming events pulled from ChurchTrac |
 | `/calendar` | Full monthly calendar view |
 | `/ministries` | Ministry overview grid |
 | `/ministries/[slug]` | Individual ministry detail page |
@@ -91,13 +95,20 @@ rtmc-website/
 
 ## API Routes
 
-### `GET /api/google-calendar`
-Fetches events from Google Calendar for a rolling window (2 months past → 6 months future). Returns normalized event objects. Cached with `no-store` to always reflect live data.
+### `GET /api/calendar`
+Fetches the ChurchTrac iCal feed directly for a rolling window (2 months past → 6 months future), including ongoing events. Expands recurring entries, applies recurrence exceptions and overrides, excludes cancelled events, and respects feed timezones and daylight saving changes. Returns normalized event objects with stable IDs, titles, descriptions, locations, starts, and ends.
 
-**Environment variables required:**
-- `GOOGLE_CALENDAR_ID` — the calendar's address (defaults to a hardcoded import calendar ID if not set)
+All-day starts remain `YYYY-MM-DD` so the UI can hide their time. Their exclusive iCal end dates become inclusive local datetimes. Timed events use ISO timestamps. Use `parseCalendarDate` for date-only values to avoid shifting them to the previous day in western timezones.
 
-**Note:** `GOOGLE_CALENDAR_API_KEY` is read exclusively from environment variables.
+Upstream fetches and API responses use `no-store`; clients refresh every five minutes. Feed failures and invalid responses return an error with an empty events array, allowing pages to show their existing error states.
+
+**Optional environment variable:**
+
+- `CALENDAR_ICAL_URL` — copy the **Calendar Feed URL** from ChurchTrac and use the complete URL as this value. Defaults to [Redeemer MTC's ChurchTrac feed](https://www.churchtrac.com/ical?ui=E6511E07) when unset. Set it in `.env.local` locally or in Railway service variables. This is a server-side runtime setting; Google Calendar credentials are no longer needed.
+
+Services and Sunday School use description keywords, falling back to titles only when a description is empty. Existing title and location normalization and the six-hour service visibility window are preserved.
+
+`GET /api/google-calendar` remains a compatibility alias for the same feed-backed endpoint.
 
 ### `POST /api/google-calendar/contact`
 Accepts a JSON body `{ firstName, lastName, email, message }` and sends an email via Gmail SMTP using Nodemailer.
@@ -113,10 +124,11 @@ Accepts a JSON body `{ firstName, lastName, email, message }` and sends an email
 
 Create a `.env.local` file at the project root (never commit this file):
 
+For `CALENDAR_ICAL_URL`, copy the **Calendar Feed URL** from ChurchTrac. The example below uses Redeemer MTC's current feed URL, which is also the default when this variable is unset.
+
 ```env
-# Google Calendar
-GOOGLE_CALENDAR_ID=your-calendar-id@group.calendar.google.com
-GOOGLE_CALENDAR_API_KEY=your-api-key
+# ChurchTrac Calendar Feed URL (optional; overrides the default feed)
+CALENDAR_ICAL_URL=https://www.churchtrac.com/ical?ui=E6511E07
 
 # Contact form (Gmail SMTP)
 EMAIL_USER=your-gmail@gmail.com
@@ -143,6 +155,9 @@ pnpm install
 
 # Run dev server
 pnpm dev
+
+# Run calendar regression tests
+pnpm test
 
 # Build for production
 pnpm build
@@ -180,8 +195,7 @@ Use the `staging` branch as the integration branch for all new work.
 
 ## TODO
 
-- [ ] **Determine the Google project used for Google Calendar** — Nick to confirm which GCP project owns the API key and calendar
-- [ ] **Rotate the Google Calendar API key** — The previous key was hardcoded in source and committed to git; must be revoked and replaced
+- [ ] **Revoke the retired Google Calendar API key** — The previous key was hardcoded in source and committed to git; the website now reads ChurchTrac directly
 - [x] **Require PR approval to merge to `main`** — Dennis or Nick must approve all pull requests before changes reach production
 
 ---

@@ -1,9 +1,9 @@
 import Image from "next/image"
 import { Clock } from "lucide-react"
-import { useGoogleCalendarEvents, getUpcomingServices, type CalendarEvent } from "@/lib/google-calendar-events"
+import { useCalendarEvents, getUpcomingServices, formatEventTime, type CalendarEvent } from "@/lib/calendar-events"
 
 export function Services() {
-  const { events, isLoading } = useGoogleCalendarEvents()
+  const { events, isLoading } = useCalendarEvents()
   const services: CalendarEvent[] = getUpcomingServices(events, 6)
 
   const getServiceImage = (service: CalendarEvent) => {
@@ -70,10 +70,7 @@ export function Services() {
                       <Clock className="w-4 h-4 text-accent" />
                       <span className="text-muted-foreground">Service:</span>
                       <span className="text-foreground font-medium">
-                        {new Date(service.start).toLocaleTimeString("en-US", {
-                          hour: "numeric",
-                          minute: "2-digit",
-                        })}
+                        {formatEventTime(service.start) || "Time TBD"}
                       </span>
                     </div>
                   </div>
