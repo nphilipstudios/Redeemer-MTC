@@ -103,7 +103,8 @@ All-day starts remain `YYYY-MM-DD` so the UI can hide their time. Their exclusiv
 Upstream fetches and API responses use `no-store`; clients refresh every five minutes. Feed failures and invalid responses return an error with an empty events array, allowing pages to show their existing error states.
 
 **Optional environment variable:**
-- `CALENDAR_ICAL_URL` — iCal feed URL. Defaults to [Redeemer MTC's ChurchTrac feed](https://www.churchtrac.com/ical?ui=E6511E07). Set it in `.env.local` locally or in Railway service variables to use another feed. This is a server-side runtime setting; Google Calendar credentials are no longer needed.
+
+- `CALENDAR_ICAL_URL` — copy the **Calendar Feed URL** from ChurchTrac and use the complete URL as this value. Defaults to [Redeemer MTC's ChurchTrac feed](https://www.churchtrac.com/ical?ui=E6511E07) when unset. Set it in `.env.local` locally or in Railway service variables. This is a server-side runtime setting; Google Calendar credentials are no longer needed.
 
 Services and Sunday School use description keywords, falling back to titles only when a description is empty. Existing title and location normalization and the six-hour service visibility window are preserved.
 
@@ -123,8 +124,10 @@ Accepts a JSON body `{ firstName, lastName, email, message }` and sends an email
 
 Create a `.env.local` file at the project root (never commit this file):
 
+For `CALENDAR_ICAL_URL`, copy the **Calendar Feed URL** from ChurchTrac. The example below uses Redeemer MTC's current feed URL, which is also the default when this variable is unset.
+
 ```env
-# Calendar iCal feed (optional; overrides the default ChurchTrac feed)
+# ChurchTrac Calendar Feed URL (optional; overrides the default feed)
 CALENDAR_ICAL_URL=https://www.churchtrac.com/ical?ui=E6511E07
 
 # Contact form (Gmail SMTP)
