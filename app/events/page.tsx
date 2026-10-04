@@ -1,9 +1,12 @@
 "use client"
 
+import { useState } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Separator } from "@/components/ui/separator"
-import { getEventGroup } from "@/lib/eventgroup"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { getEventGroup, type EventGroup } from "@/lib/eventgroup"
 import {
   useCalendarEvents,
   parseCalendarDate,
@@ -85,6 +88,7 @@ function recurringLabelFor(event: CalendarEvent) {
 
 export default function EventsPage() {
   const { events, isLoading, error } = useCalendarEvents()
+  const [selectedCategory, setSelectedCategory] = useState<EventGroup["name"] | "all">("all")
 
   const now = new Date()
 
@@ -95,8 +99,14 @@ export default function EventsPage() {
     .slice()
     .sort((a, b) => parseCalendarDate(a.start).getTime() - parseCalendarDate(b.start).getTime())
 
+  const categories = Array.from(new Set(calendarUpcoming.map((event) => getEventGroup(event).name)))
+    .sort((a, b) => a.localeCompare(b))
+  const filteredEvents = calendarUpcoming.filter((event) =>
+    selectedCategory === "all" || getEventGroup(event).name === selectedCategory
+  )
+
   // Main grid: exclude recurring series instances (Bible Study / Prayer Call)
-  const upcomingEvents: CalendarEvent[] = calendarUpcoming
+  const upcomingEvents: CalendarEvent[] = filteredEvents
     .filter((e) => !getRecurringKey(e))
 
   const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1)
@@ -118,7 +128,7 @@ export default function EventsPage() {
     const seen = new Set<string>()
     const out: CalendarEvent[] = []
 
-    for (const e of calendarUpcoming) {
+    for (const e of filteredEvents) {
       const key = getRecurringKey(e)
       if (!key) continue
       if (seen.has(key)) continue
@@ -128,6 +138,8 @@ export default function EventsPage() {
 
     return out
   })()
+
+  const visibleEventCount = upcomingEvents.length + recurringEvents.length
 
   return (
     <main className="min-h-screen">
@@ -144,13 +156,42 @@ export default function EventsPage() {
             </h1>
           </div>
 
+          {!isLoading && !error && calendarUpcoming.length > 0 && (
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <Label htmlFor="event-category">Filter by category</Label>
+                <Select
+                  value={selectedCategory}
+                  onValueChange={(value) => setSelectedCategory(value as EventGroup["name"] | "all")}
+                >
+                  <SelectTrigger id="event-category" className="w-full sm:w-56">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All categories</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category} value={category}>{category}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <p role="status" className="text-sm text-muted-foreground">
+                Showing {visibleEventCount} {visibleEventCount === 1 ? "event" : "events"}
+              </p>
+            </div>
+          )}
+
           {isLoading ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">Loading events...</p>
             </div>
-          ) : error || upcomingEvents.length === 0 ? (
+          ) : error || visibleEventCount === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No upcoming events scheduled.</p>
+              <p className="text-muted-foreground">
+                {error || selectedCategory === "all"
+                  ? "No upcoming events scheduled."
+                  : "No upcoming events scheduled in this category."}
+              </p>
             </div>
           ) : (
             <>
@@ -169,7 +210,9 @@ export default function EventsPage() {
                       </div>
                       {section.events.length === 0 ? (
                         <p className="text-muted-foreground">
-                          No more events scheduled this month.
+                          {selectedCategory === "all"
+                            ? "No more events scheduled this month."
+                            : "No more events scheduled in this category this month."}
                         </p>
                       ) : (
                         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
