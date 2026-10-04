@@ -10,7 +10,9 @@ import {
   formatEventDate,
   formatEventTime,
   isServiceEvent,
+  isVisibleHoursAfterEnd,
   prettyLocation,
+  prettyTitle,
   type CalendarEvent,
 } from "@/lib/calendar-events"
 import { Clock, MapPin } from "lucide-react"
@@ -86,14 +88,15 @@ export default function EventsPage() {
 
   const now = new Date()
 
-  const nonServiceUpcoming: CalendarEvent[] = events
-    .filter((e) => !isServiceEvent(e))
-    .filter((e) => parseCalendarDate(e.start) >= now)
+  const calendarUpcoming: CalendarEvent[] = events
+    .filter((e) => isServiceEvent(e)
+      ? isVisibleHoursAfterEnd(e, 6)
+      : parseCalendarDate(e.start) >= now)
     .slice()
     .sort((a, b) => parseCalendarDate(a.start).getTime() - parseCalendarDate(b.start).getTime())
 
   // Main grid: exclude recurring series instances (Bible Study / Prayer Call)
-  const upcomingEvents: CalendarEvent[] = nonServiceUpcoming
+  const upcomingEvents: CalendarEvent[] = calendarUpcoming
     .filter((e) => !getRecurringKey(e))
 
   const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1)
@@ -115,7 +118,7 @@ export default function EventsPage() {
     const seen = new Set<string>()
     const out: CalendarEvent[] = []
 
-    for (const e of nonServiceUpcoming) {
+    for (const e of calendarUpcoming) {
       const key = getRecurringKey(e)
       if (!key) continue
       if (seen.has(key)) continue
@@ -194,7 +197,7 @@ export default function EventsPage() {
 
                                 {/* Title */}
                                 <h3 className="font-serif text-lg text-foreground mb-3 mt-8 break-words line-clamp-2">
-                                  {event.title}
+                                  {prettyTitle(event.title)}
                                 </h3>
 
                                 {/* Time, Location, Description */}
@@ -273,7 +276,7 @@ export default function EventsPage() {
 
                           {/* Title */}
                           <h3 className="font-serif text-lg text-foreground mb-3 mt-8 break-words line-clamp-2">
-                            {event.title}
+                            {prettyTitle(event.title)}
                           </h3>
 
                           {/* Time, Location, Description */}
