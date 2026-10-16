@@ -1,7 +1,3 @@
-import { Heart, Users, Globe, HandHeart } from "lucide-react"
-
-
-
 export function About() {
   return (
     <section id="about" className="py-20 lg:py-28 bg-secondary">

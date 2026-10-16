@@ -1,16 +1,32 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { DM_Sans, Playfair_Display } from "next/font/google"
+import { headers } from "next/headers"
 import Script from "next/script"
+import { Suspense } from "react"
+import { GoogleAnalytics } from "@/components/google-analytics"
 import "./globals.css"
-import { Analytics } from "@vercel/analytics/next"
 
-const _dmSans = DM_Sans({ subsets: ["latin"] })
-const _playfair = Playfair_Display({ subsets: ["latin"] })
+const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans" })
+const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" })
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://redeemermtc.org"
+const googleAnalyticsId = process.env.NEXT_PUBLIC_GA_ID?.trim()
+
+function googleAnalyticsScript(id: string) {
+  const safeId = JSON.stringify(id)
+
+  return `
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', ${safeId}, { send_page_view: false });
+  `
+}
 
 export const metadata: Metadata = {
   title: "Redeemer MTC",
-  metadataBase: new URL("https://redeemer-mtc.vercel.app"),
+  metadataBase: new URL(siteUrl),
   description:
     "A welcoming community of faith in Christ - Worship, Mission, Outreach, Fellowship",
   icons: {
@@ -42,48 +58,41 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined
+
   return (
     <html lang="en">
       <head>
-        {/* Google Analytics */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-TEZWRD4TZV"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-TEZWRD4TZV');
-          `}
-        </Script>
-
-        {/* Userback */}
-        {/*
-  <Script id="userback-widget" strategy="afterInteractive">
-    {`
-      window.Userback = window.Userback || {};
-      Userback.access_token = "A-SY3S1mMdUoUAIJHvf8qGHWovJ";
-      (function(d) {
-        var s = d.createElement('script');
-        s.async = true;
-        s.src = 'https://static.userback.io/widget/v1.js';
-        (d.head || d.body).appendChild(s);
-      })(document);
-    `}
-  </Script>
-*/}
+        {googleAnalyticsId && (
+          <>
+            <Script
+              nonce={nonce}
+              src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(googleAnalyticsId)}`}
+              strategy="afterInteractive"
+            />
+            <Script
+              id="google-analytics"
+              nonce={nonce}
+              strategy="afterInteractive"
+            >
+              {googleAnalyticsScript(googleAnalyticsId)}
+            </Script>
+          </>
+        )}
       </head>
 
-      <body className="font-sans antialiased">
+      <body className={`${dmSans.variable} ${playfair.variable} font-sans antialiased`}>
+        {googleAnalyticsId && (
+          <Suspense fallback={null}>
+            <GoogleAnalytics measurementId={googleAnalyticsId} />
+          </Suspense>
+        )}
         {children}
-        <Analytics />
       </body>
     </html>
   )

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Mail, Phone, MapPin, Send } from "lucide-react"
+import { trackGoogleAnalyticsEvent } from "@/components/google-analytics"
 
 
 export function Contact() {
@@ -37,6 +38,10 @@ export function Contact() {
 
 
       if (res.ok) {
+        trackGoogleAnalyticsEvent("generate_lead", {
+          form_name: "contact",
+          method: "contact_form",
+        })
         setFeedback("Message sent successfully!")
         setFormData({
           firstName: "",
@@ -45,10 +50,18 @@ export function Contact() {
           message: "",
         })
       } else {
+        trackGoogleAnalyticsEvent("contact_form_error", {
+          form_name: "contact",
+          status: res.status,
+        })
         setFeedback(data.error || "Something went wrong.")
       }
     } catch (error) {
       console.error(error)
+      trackGoogleAnalyticsEvent("contact_form_error", {
+        form_name: "contact",
+        status: "network_error",
+      })
       setFeedback("Something went wrong. Please try again.")
     } finally {
       setLoading(false)
@@ -219,4 +232,3 @@ export function Contact() {
     </section>
   )
 }
-

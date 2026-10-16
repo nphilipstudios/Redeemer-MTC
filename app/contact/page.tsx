@@ -1,6 +1,13 @@
+import type { Metadata } from "next"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Contact } from "@/components/contact"
+
+export const metadata: Metadata = {
+  title: "Contact | Redeemer MTC",
+  description:
+    "Contact Redeemer Mar Thoma Church in Waldwick, NJ with questions, prayer requests, or ways to connect.",
+}
 
 export default function ContactPage() {
   return (
@@ -13,7 +20,7 @@ export default function ContactPage() {
           <p className="text-accent text-sm uppercase tracking-widest mb-3">Reach Out</p>
           <h1 className="font-serif text-4xl md:text-5xl text-primary-foreground mb-4">Contact Us</h1>
           <p className="text-primary-foreground/80 text-lg max-w-2xl mx-auto">
-            We'd love to hear from you. Get in touch with any questions or prayer requests.
+            We&apos;d love to hear from you. Get in touch with any questions or prayer requests.
           </p>
         </div>
       </section>

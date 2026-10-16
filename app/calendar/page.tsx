@@ -5,12 +5,13 @@ import { Footer } from "@/components/footer"
 import { useState } from "react"
 import { ChevronLeft, ChevronRight, Clock, MapPin } from "lucide-react"
 import {
-  useGoogleCalendarEvents,
+  useCalendarEvents,
+  parseCalendarDate,
   type CalendarEvent,
   prettyLocation,
   formatEventTime,
   prettyTitle,
-} from "@/lib/google-calendar-events"
+} from "@/lib/calendar-events"
 import { getEventGroup } from "@/lib/eventgroup"
 
 const monthNames = [
@@ -36,13 +37,13 @@ function isSameDay(a: Date, b: Date) {
   )
 }
 
-// Google Calendar all-day events come back as YYYY-MM-DD (no time).
+// Calendar all-day events come back as YYYY-MM-DD (no time).
 function hasTime(dateString?: string) {
   return !!dateString && dateString.includes("T")
 }
 
 function safeDate(value: string) {
-  const d = new Date(value)
+  const d = parseCalendarDate(value)
   return isNaN(d.getTime()) ? null : d
 }
 
@@ -65,8 +66,7 @@ export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDay, setSelectedDay] = useState<number | null>(null)
 
-  // ✅ Use Google Calendar (not ChurchTrac)
-  const { events, isLoading, error } = useGoogleCalendarEvents()
+  const { events, isLoading, error } = useCalendarEvents()
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -327,7 +327,6 @@ export default function CalendarPage() {
 
                         {(() => {
                           const url = extractFirstUrl(event.description)
-                          const cleanDescription = event.description?.replace(url ?? "", "").trim()
                           const titleNode = (
                             <h4 className="font-serif text-lg text-foreground mt-1 break-words">
                               {prettyTitle(event.title)}

@@ -3,7 +3,8 @@
 import Link from "next/link"
 import { Clock, BookOpen, MapPin } from "lucide-react"
 import {
-  useGoogleCalendarEvents,
+  useCalendarEvents,
+  parseCalendarDate,
   getUpcomingServices,
   formatEventDate,
   formatEventTime,
@@ -11,10 +12,10 @@ import {
   prettyTitle,
   isSundaySchoolEvent,
   type CalendarEvent,
-} from "@/lib/google-calendar-events"
+} from "@/lib/calendar-events"
 
 export function ServiceTeasers() {
-  const { events, isLoading, error } = useGoogleCalendarEvents()
+  const { events, isLoading, error } = useCalendarEvents()
 
   // ✅ services only, auto-hide 6 hours after END
   const services: CalendarEvent[] = getUpcomingServices(events, 6).slice(0, 3)
@@ -94,10 +95,10 @@ export function ServiceTeasers() {
         <div className={wrapperClass}>
           <div className={gridClass}>
             {services.map((service) => {
-              const startDate = new Date(service.start)
+              const startDate = parseCalendarDate(service.start)
               const isSunday = startDate.getDay() === 0
 
-              // ✅ Sunday School ONLY if calendar has it (description-based)
+              // ✅ Sunday School ONLY if calendar has it (description with title fallback when empty)
               const sundaySchoolExists = isSunday && events.some((e) => isSundaySchoolEvent(e))
 
               return (
@@ -111,7 +112,7 @@ export function ServiceTeasers() {
                     </span>
                   </div>
 
-                  {/* ✅ Title from Google Calendar EXACTLY */}
+                  {/* ✅ Title from the calendar feed */}
                   <h3 className="font-serif text-lg text-foreground mb-4 mt-8 group-hover:text-accent transition-colors">
                     {prettyTitle(service.title)}
                   </h3>

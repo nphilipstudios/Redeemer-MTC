@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 
 const events = [
   {
@@ -44,10 +45,12 @@ export function Events() {
               className="bg-card rounded-xl overflow-hidden border border-border hover:shadow-lg transition-all group cursor-pointer"
             >
               <div className="relative h-48 overflow-hidden">
-                <img
+                <Image
                   src={event.image || "/placeholder.svg"}
                   alt={event.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  fill
+                  sizes="(min-width: 768px) 33vw, 100vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute top-4 left-4 bg-card/90 backdrop-blur-sm rounded-lg px-3 py-1">
                   <span className="text-accent font-medium text-sm">{event.date}</span>

@@ -3,30 +3,16 @@
 import Link from "next/link"
 import { ArrowRight, CalendarDays, MapPin } from "lucide-react"
 import {
-  useGoogleCalendarEvents,
+  useCalendarEvents,
+  parseCalendarDate,
+  hasTime,
   prettyTitle,
   type CalendarEvent,
-} from "@/lib/google-calendar-events"
+} from "@/lib/calendar-events"
 
 import { getEventGroup } from "@/lib/eventgroup"
 
 // ---------- date helpers ----------
-function startOfWeek(date: Date) {
-  const d = new Date(date)
-  d.setHours(0, 0, 0, 0)
-  const day = d.getDay() // Sun=0
-  d.setDate(d.getDate() - day)
-  return d
-}
-
-function endOfWeek(date: Date) {
-  const s = startOfWeek(date)
-  const e = new Date(s)
-  e.setDate(e.getDate() + 6)
-  e.setHours(23, 59, 59, 999)
-  return e
-}
-
 function addDays(date: Date, days: number) {
   const d = new Date(date)
   d.setDate(d.getDate() + days)
@@ -72,15 +58,9 @@ function fmtTime(d: Date) {
 
 function safeDate(value?: string) {
   if (!value) return null
-  const d = new Date(value)
+  const d = parseCalendarDate(value)
   return isNaN(d.getTime()) ? null : d
 }
-
-function isRecurringLike(e: CalendarEvent) {
-  const text = `${e.title ?? ""} ${e.description ?? ""}`.toLowerCase()
-  return text.includes("bible study") || text.includes("prayer call")
-}
-
 
 function eventAnchorId(e: CalendarEvent) {
   const base = `${e.id || e.title || "event"}-${(e.start || "").slice(0, 10)}`
@@ -104,7 +84,7 @@ function EventChip({ event }: { event: CalendarEvent }) {
   const isPast = endDate.getTime() < now.getTime()
   const todayRing = isSameDay(startDate, now)
 
-  const groupInfo = (getEventGroup as any)(event)
+  const groupInfo = getEventGroup(event)
   const dotColor =
     (typeof groupInfo?.color === "string"
       ? groupInfo.color.split(" ").find((c: string) => c.startsWith("bg-"))
@@ -119,7 +99,7 @@ function EventChip({ event }: { event: CalendarEvent }) {
     <Link
       href={`/events#${eventAnchorId(event)}`}
       className={[
-        "inline-flex max-w-full min-w-0 items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors",
+        "flex w-full max-w-full min-w-0 items-start gap-2 rounded-3xl border px-3 py-2 text-sm transition-colors",
         containerTone,
         todayRing ? "ring-2 ring-accent/50" : "",
         "cursor-pointer",
@@ -129,36 +109,40 @@ function EventChip({ event }: { event: CalendarEvent }) {
     >
       {/* dot (color by event type) */}
       <span
-        className={["w-2 h-2 rounded-full", dotColor, isPast ? "opacity-40" : ""].join(
+        className={["mt-1.5 h-2 w-2 shrink-0 rounded-full", dotColor, isPast ? "opacity-40" : ""].join(
           " "
         )}
       />
 
       {/* strike through DATE + TIME + TITLE */}
-      <span className={`text-accent font-semibold ${strike}`}>
+      <span className={`shrink-0 text-accent font-semibold ${strike}`}>
         {fmtMonthDay(startDate)}
       </span>
 
-      <span className={`text-muted-foreground ${strike}`}>
-        {fmtTime(startDate)}
-      </span>
-
-      <span
-        className={`font-medium truncate min-w-0 max-w-[18rem] ${strike} ${
-          isPast ? "" : "text-foreground"
-        }`}
-      >
-        {prettyTitle(event.title)}
-      </span>
-
-      {event.location ? (
-        <span
-          className={`hidden md:inline-flex min-w-0 items-center gap-1 text-muted-foreground ${strike}`}
-        >
-          <MapPin className="w-3.5 h-3.5" />
-          <span className="truncate max-w-[12rem]">{event.location}</span>
+      {hasTime(event.start) && (
+        <span className={`shrink-0 text-muted-foreground ${strike}`}>
+          {fmtTime(startDate)}
         </span>
-      ) : null}
+      )}
+
+      <span className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
+        <span
+          className={`min-w-0 max-w-full whitespace-normal break-words leading-snug font-medium sm:max-w-[18rem] lg:max-w-[16rem] xl:max-w-[20rem] ${strike} ${
+            isPast ? "" : "text-foreground"
+          }`}
+        >
+          {prettyTitle(event.title)}
+        </span>
+
+        {event.location ? (
+          <span
+            className={`hidden min-w-0 max-w-full items-center gap-1 text-muted-foreground md:inline-flex ${strike}`}
+          >
+            <MapPin className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate max-w-[12rem]">{event.location}</span>
+          </span>
+        ) : null}
+      </span>
     </Link>
   )
 }
@@ -189,7 +173,7 @@ function ChipSection({
       {events.length === 0 ? (
         <p className="text-sm text-muted-foreground">{emptyText}</p>
       ) : (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col gap-2">
           {events.map((e, idx) => (
             <EventChip key={(e.id || e.title) + "-" + idx} event={e} />
           ))}
@@ -200,11 +184,9 @@ function ChipSection({
 }
 
 export function EventsTeaser() {
-  const { events, isLoading, error } = useGoogleCalendarEvents()
+  const { events, isLoading, error } = useCalendarEvents()
 
   const now = new Date()
-  const weekStart = startOfWeek(now)
-  const weekEnd = endOfWeek(now)
   const nextSevenDaysStart = new Date(now)
   const nextSevenDaysEnd = addDays(now, 7)
   const monthStart = startOfMonth(now)
